@@ -4,14 +4,19 @@
   import SvgIcons from "../Components/SvgIcons.svelte";
   const M = require('moment')
   import {router} from 'tinro';
+  export let showBookmarked
 
   let isLoading = true, threads = [], threadCount = 0
-  let threadHandler = Meteor.subscribe('dynamicQuery', 'ThreadsCollection')
+  let Q = {isArchived:{$ne:true}}
+
+  let threadHandler = Meteor.subscribe('dynamicQuery', 'ThreadsCollection', Q)
 
   $m: {
-    isLoading = !threadHandler.ready();
+    if (showBookmarked) Q = {isArchived:{$ne:true}, bookmarkedMessages: {$gt:0}}
+    else Q = {isArchived:{$ne:true}}
 
-    threads = ThreadsCollection.find( {}, { sort: { updatedAt:-1, createdAt: -1 } } ).fetch();
+    isLoading = !threadHandler.ready();
+    threads = ThreadsCollection.find( Q, { sort: { updatedAt:-1, createdAt: -1 } } ).fetch();
     threadCount = threads.length
   }
 
@@ -91,15 +96,22 @@
       <div class="thread-meta" style="cursor: pointer;">
         <div class="thread-content text-decoration-none" on:click={() => router.goto('/threads?threadId=' + thread._id)}>
           <div class="thread-title text-truncate">{thread?.title ?? 'New Chat'}</div>
-          <div class="thread-ts">{M(thread.updatedAt, 'x').format('MM/DD/YY')} : {M(thread.updatedAt, 'x').fromNow(true)} : {thread.model?.replace(/GPT[\-]*/i, 'v').replace('-turbo', '-T')}</div>
+          <div class="thread-ts">
+            {M(thread.updatedAt, 'x').format('MM/DD/YY')} :
+            {M(thread.updatedAt, 'x').fromNow(true)} :
+            {thread.model?.replace(/GPT[\-]*/i, 'v').replace('-turbo', '-T')}
+            {#if thread.bookmarkedMessages}
+              : <SvgIcons iconName="bookmark-filled" /> {thread.bookmarkedMessages.toLocaleString()}
+            {/if}
+          </div>
         </div>
         <div class="dropdown">
           <span class="dropdown-toggle noAfter" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding:0; margin: 0; "><SvgIcons iconName="dots-vertical" /></span>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Duplicate</a></li>
-            <li><a class="dropdown-item" href="#">Archive</a></li>
-            <li><a class="dropdown-item" href="#">Rename</a></li>
-            <li><a class="dropdown-item" href="#">Delete</a></li>
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Duplicate', thread._id)}>Duplicate</a></li>
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Update Thread', thread._id, {$set:{isArchived: true}})}>Archive</a></li>
+<!--            <li><a class="dropdown-item" href="#">Rename</a></li>-->
+<!--            <li><a class="dropdown-item" href="#">Delete</a></li>-->
           </ul>
         </div>
 <!--        <div class="thread-options"><SvgIcons iconName="dots-vertical" /></div>-->
