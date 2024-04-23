@@ -4,8 +4,10 @@
   export let details
   console.log(details)
 </script>
-
+<style>
+  code {
+    display: block;
+  }
+</style>
 <h1>Portfolio introduction</h1>
-<h1>My URL is {route.url}!</h1>
-<h1>My URL is {$route.url}!</h1>
-<h1>My URL is {details.url}!</h1>
+<pre>{JSON.stringify({details, $route, route}, '', '    ')}</pre>

@@ -1,0 +1,92 @@
+.messagesContainer {
+  display: grid;
+  grid-template-rows: auto 2.5em;
+  grid-template-columns: 100%;
+  height: calc(100vh - 4.75em);
+  margin: 10px;
+  gap: 10px;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  margin: 10px 0;
+
+}
+
+.messagesContainer .instructions {
+  overflow-y: scroll;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.46);
+  margin: 0 10px;
+}
+.messagesContainer .input {
+  padding: 10px;
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto 2em;
+}
+
+.messagesContainer .input input {
+  width: 100%;
+}
+textarea {
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  background: transparent;
+}
+.systemMessage, .userMessage, .assistantMessage {
+  display: grid;
+  grid-template-rows: 1em 15em;
+  /*background: black;*/
+  background: var(--bs-textarea);
+  /*backdrop-filter: brightness(-2);*/
+  padding: 10px;
+  /*margin: 10px;*/
+  border-radius: 5px;
+  gap: 5px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(128, 128, 128, 0.24);
+}
+
+.messageLabel {
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  line-height: 1;
+  font-size: 12px;
+  letter-spacing: .1em;
+}
+.messageLabel:after {
+  content: attr(data-tokens);
+  display: inline-block;
+  margin-left: 10px;
+  color: grey;
+}
+
+.userMessage, .assistantMessage {
+  grid-template-rows: 1em 1.5em;
+}
+
+.removeLink {
+  text-decoration: none;
+  position: relative;
+  top: -2px;
+  color: red;
+  margin-left: 5px;
+}
+
+.addButton {
+  text-decoration: none;
+}
+.addButtonText {
+  margin-left: 10px;
+}
+.newThreadControls {
+  display: grid;
+  grid-template-columns: auto 15em 15em 10em 10em;
+  gap: 10px;
+  padding: 0 10px;
+  margin-bottom: 10px;
+}
+.addButton .addButtonText {
+  position: relative !important;
+  top: 2px !important;;
+}

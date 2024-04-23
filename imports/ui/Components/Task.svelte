@@ -1,5 +1,5 @@
 <script>
-  import { TasksCollection } from '../../db/TasksCollection';
+  import { TasksCollection } from '../../db/DatabaseCollection';
   export let task;
 
   const toggleChecked = () => Meteor.call('tasks.setIsChecked', task._id, !task.isChecked);

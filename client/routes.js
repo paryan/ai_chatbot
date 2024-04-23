@@ -1,6 +1,6 @@
 import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
 import App from "../imports/ui/App.svelte"
-import NotFound from "../imports/ui/NotFound.svelte"
+import NotFound from "../imports/ui/Pages/NotFound.svelte"
 
 // Create index route
 FlowRouter.route('/', {

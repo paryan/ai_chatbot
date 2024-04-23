@@ -1,6 +1,6 @@
 <script>
   import Task from '../Components/Task.svelte';
-  import { TasksCollection } from '../../db/TasksCollection';
+  import { TasksCollection } from '../../db/DatabaseCollection';
   import TaskForm from "../Components/TaskForm.svelte";
 
   let incompleteCount, pendingTasksTitle = '', tasks = [], isLoading = true, hideCompleted = false
@@ -8,7 +8,7 @@
   const setHideCompleted = (value) => { hideCompleted = value }
   const hideCompletedFilter = { isChecked: { $ne: true } };
 
-  const handler = Meteor.subscribe('tasks');
+  const handler = Meteor.subscribe('dynamicQuery', 'TasksCollection', {}, {});
 
   $m: {
     isLoading = !handler.ready();

@@ -1,6 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*@tailwind base;*/
+/*@tailwind components;*/
+/*@tailwind utilities;*/
+
+[data-bs-theme=light] {
+  --bs-textarea: #dedede !important;
+}
+
+[data-bs-theme="dark"] {
+  --bs-textarea: rgb(18, 18, 18) !important;
+}
+
 
 /* https://www.cssportal.com/css-tooltip-generator/ */
 @media screen and (max-width: 932px) {
@@ -107,4 +116,26 @@
 }
 [data-tooltip=""]::after, [data-tooltip=""]::before {
   display: none !important;
+}
+
+
+
+textarea, textarea:focus, textarea:focus-visible, select {
+  border: none;
+  overflow: auto;
+  outline: none;
+
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  outline: none !important;
+  appearance: none !important;
+  -webkit-box-shadow: none !important;
+
+  /*border-color: #4A90E2; !* Change border color on focus *!*/
+  /*box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.5); !* Add a soft glow or shadow *!*/
+}
+
+.noAfter:after, .noBefore:before  {
+  display: none;
 }
