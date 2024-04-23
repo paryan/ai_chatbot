@@ -7,7 +7,7 @@
   export let models
   let selectedModel = models[0]
 
-  let isLoading = true, threads = [], threadCount = 0, totalInputTokens = 0, totalOutputTokens = 0, title = 'New Chat - ' + (new Date()).toLocaleDateString()
+  let isLoading = true, threads = [], threadCount = 0, totalInputTokens = 0, totalOutputTokens = 0, totalTokens = 0, title = 'New Chat - ' + (new Date()).toLocaleDateString()
   // let threadHandler = Meteor.subscribe('dynamicQuery', 'ThreadsCollection')
 
   let instructions = [
@@ -28,7 +28,7 @@
     instructions = _.chain(instructions).filter('content').map(x => ({...x, content: x.content?.trim()})).filter('content').value()
     if(!title.trim()) return alert('No Title. Failed to insert.')
     if (!instructions.length) return alert('No Instructions Found. Failed to insert.')
-    Meteor.call('Threads : New Thread', {title, selectedModel, instructions, totalInputTokens, totalOutputTokens}, (err, data) => {
+    Meteor.call('Threads : New Thread', {title, selectedModel, instructions, totalInputTokens, totalOutputTokens, totalTokens}, (err, data) => {
       resetThread()
       console.log(data)
     })
@@ -47,6 +47,7 @@
     }
     totalOutputTokens = _.chain(instructions).filter(x => x.role === 'assistant').map('tokens').compact().sum().value()
     totalInputTokens  = _.chain(instructions).filter(x => x.role !== 'assistant').map('tokens').compact().sum().value()
+    totalTokens       = _.chain(instructions).map('tokens').compact().sum().value()
 
   }
 
