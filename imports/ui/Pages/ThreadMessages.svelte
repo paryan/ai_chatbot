@@ -25,6 +25,7 @@
   import { onMount, tick } from 'svelte';
   import {copyText} from "../../api/Utils";
 
+  onMount(() => { document.title = 'AI - Threads'; });
 
   let isLoading = true, thread = {}, threadCopy = {}, chatMessages = [], newContent = ''
   // let noThread = true
@@ -43,6 +44,7 @@
     if(messagesContainer) messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
+
   let threadHandler = Meteor.subscribe('dynamicQuery', 'MessagesCollection', chatQuery, {
     onReady: async () => {
       chatMessages = MessagesCollection.find( chatQuery, { sort: { index: 1 } } ).fetch();
@@ -59,6 +61,7 @@
     Meteor.subscribe('dynamicQuery', 'ThreadsCollection', threadQuery, () => {
       isLoading = false;
       thread = ThreadsCollection.findOne( threadQuery );
+      document.title = 'AI: ' + (thread?.title ?? 'Threads')
       scrollToBottom()
     });
   });
