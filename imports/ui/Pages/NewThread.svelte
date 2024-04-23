@@ -4,6 +4,9 @@
   import _ from 'lodash'
   import './Threads.css'
 
+  import { onMount } from 'svelte';
+  onMount(() => { document.title = 'AI: New Thread'; });
+
   export let models
   let selectedModel = models[0]
 
