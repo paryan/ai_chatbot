@@ -41,6 +41,26 @@ Meteor.methods({
     let NOW = Date.now()
     return DB.ThreadsCollection.insert({ ...record, updatedAt: NOW, createdAt: NOW }) //?.[0]
   },
+  'Threads : Duplicate': async (_id) => {
+    let NOW = Date.now()
+    let EXST = await DB.ThreadsCollection.findOne({_id})
+    let oldThreadId = EXST._id
+    
+    delete EXST._id
+    let NEW_ID = await DB.ThreadsCollection.insert({ ...EXST, updatedAt: NOW, createdAt: NOW })
+    
+    let messages = await DB.MessagesCollection.find({threadId: oldThreadId}, { sort: { index: 1 } }).fetch()
+    
+    // console.log({OLD_ID:oldThreadId, NEW_ID})
+    
+    messages = messages.map(x => ({..._.omit(x, ['_id']), threadId: NEW_ID}))
+    // console.log('messages', messages.length)
+    // console.log(JSON.stringify(messages))
+    
+    for (let i = 0; i < messages.length; i++) {
+      DB.MessagesCollection.insert(messages[i])
+    }
+  },
   'Threads : Get Thread': async (Q) => {
     return DB.ThreadsCollection.findOne(Q) //?.[0]
   },
@@ -57,5 +77,19 @@ Meteor.methods({
     await DB.ThreadsCollection.update({_id: threadId}, { $set: { updatedAt: NOW } })
     return allMessages
   },
+  'Messages : Update Message': (_id, update) => DB.MessagesCollection.update({_id}, update),
   'Messages : Remove Message': (_id) => DB.MessagesCollection.remove({_id}),
+  'Settings: Update Dark-Mode': (darkMode) => DB.SettingsCollection.update({type:'UI'}, {$set:{type:'UI', darkMode}}, {upsert: true}),
+  'AI: Token Counter': async (data, models) => {
+    let response = {}
+    for (let i = 0; i < models.length; i++) {
+      let B = await callAPI.POST({
+        endpoint: 'AI/OpenAI/token_counter?model=' + models[i],
+        headers: { 'Content-Type': 'text/plain' },
+        data
+      })
+      response[models[i]] = B.tokens;
+    }
+    return _.chain(response).toPairs().map(x => ({model: _.startCase(x[0]).replace(/GPT/i, 'GPT').replace(/([0-9]) ([0-9])/gi, '$1.$2'), tokens: x[1]})).value()
+  }
 })
