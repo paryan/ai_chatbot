@@ -28,6 +28,7 @@ const local = {
     return "College Senior or Above";
   },
   calculateReadingLevel(text) {
+    if (!text) return 0
     const words = text.match(/\b[-?(\w+)?]+\b/gi);
     const sentences = text.match(/[\w|\)][.?!](\s|$)/g);
     const wordCount = words ? words.length : 0;
@@ -60,10 +61,10 @@ module.exports = {
     return result
   },
   updateStats(text) {
-    const words = text.match(/\b[-?(\w+)?]+\b/gi);
-    const characters = text.length;
-    const sentences = text.match(/[\w|\)][.?!](\s|$)/g);
-    const paragraphs = text.match(/(\n\n|\r\r|\r\n\r\n)/g);
+    const words = text?.match(/\b[-?(\w+)?]+\b/gi) ?? [];
+    const characters = text?.length ?? 0;
+    const sentences = text?.match(/[\w|\)][.?!](\s|$)/g) ?? [];
+    const paragraphs = text?.match(/(\n\n|\r\r|\r\n\r\n)/g) ?? [];
     const readingLevel = local.calculateReadingLevel(text);
     const readingLabel = characters ? local.getReadingLevelLabel(parseFloat(readingLevel)) : '-';
     const wordCount = words ? words.length : 0;
