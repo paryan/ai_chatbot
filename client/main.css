@@ -4,10 +4,17 @@
 
 [data-bs-theme=light] {
   --bs-textarea: #dedede !important;
+  --bs-threadMeta: rgba(238, 238, 238, 0.95) !important;
+  --bs-threadMetaBorder: #ddd;
+  /*--bs-threadMetaShadow: rgba(238, 238, 238, 0.5) !important;*/
+  --bs-threadMetaShadow: rgb(49 49 49 / 50%) !important
 }
 
 [data-bs-theme="dark"] {
   --bs-textarea: rgb(18, 18, 18) !important;
+  --bs-threadMeta: rgba(49, 49, 49, 0.9) !important;
+  --bs-threadMetaBorder: #494949;
+  --bs-threadMetaShadow: rgba(49, 49, 49, 0.5) !important;
 }
 
 
@@ -138,4 +145,9 @@ textarea, textarea:focus, textarea:focus-visible, select {
 
 .noAfter:after, .noBefore:before  {
   display: none;
+}
+
+.message-content p:last-child, .message-content p:last-of-type {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
 }
