@@ -2,6 +2,9 @@
   let Diff = require('../../logic/text-diff-logic')
   let _ = require('lodash')
 
+  import { onMount } from 'svelte';
+  onMount(() => { document.title = 'AI: Text Diff'; });
+
   let result = '', stats1 = Diff.updateStats(''), stats2 = Diff.updateStats(''), text1, text2
   let tokens= {
     1: [],
