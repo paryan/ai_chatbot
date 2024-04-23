@@ -9,7 +9,7 @@
   import {marked} from 'marked';
 
   const route = meta();
-
+  export let showBookmarked
   // Optionally set marked options
   marked.setOptions({
     gfm: true, // GitHub Flavored Markdown
@@ -30,6 +30,13 @@
   // let noThread = true
   let threadQuery = details?.query?.threadId ? {_id: details?.query?.threadId} : {noThread: true}
   let chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId} : {noThread: true}
+
+  $m: {
+    if (showBookmarked) chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId, isBookmarked: true} : {noThread: true}
+    else chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId} : {noThread: true}
+
+    // console.log('Messages', showBookmarked, chatQuery)
+  }
 
   let scrollToBottom = () => {
     let messagesContainer = document.querySelector('.chatMessages');
@@ -77,9 +84,18 @@
       await tick(); // Ensures the DOM updates with the new message
       scrollToBottom()
       let messages = [...thread.instructions, ...data]
+      newContent = ''
       Meteor.call('AI: Chat Completion', thread.model, messages, async (err1, aiMsg) => {
         // console.log(messages, aiMsg)
-        await Meteor.call('Threads : Update Thread', thread._id, { $set: {totalInputTokens: aiMsg.prompt_tokens, totalOutputTokens: aiMsg.completion_tokens, updatedAt: Date.now() } })
+        thread.totalInputTokens = aiMsg.prompt_tokens
+        thread.totalOutputTokens = aiMsg.completion_tokens
+        thread.totalTokens = aiMsg.total_tokens
+        // console.log({totalInputTokens: aiMsg.prompt_tokens, totalOutputTokens: aiMsg.completion_tokens, updatedAt: Date.now() })
+        await Meteor.call('Threads : Update Thread', thread._id, { $set: {
+            totalInputTokens: aiMsg.prompt_tokens,
+            totalOutputTokens: aiMsg.completion_tokens,
+            totalTokens: aiMsg.total_tokens,
+            updatedAt: Date.now() } })
         await Meteor.call('Messages : New Message', thread._id, aiMsg.content, aiMsg.role, thread.model, async () => {
           await tick(); // Ensures the DOM updates with the new message
           scrollToBottom()
@@ -90,20 +106,15 @@
     })
   }
   let removeMessage = async (msg) => {
-    // console.log(msg)
-    Meteor.call('Messages : Remove Message', msg._id, (err, data) => {
-      // scrollToBottom()
-      // console.log(data)
+    Meteor.call('Messages : Remove Message', msg._id)
+  }
+  let bookmarkMessage = async (msg) => {
+    Meteor.call('Messages : Update Message', msg._id, { $set: { isBookmarked: !msg.isBookmarked } }, () => {
+      Meteor.call('Threads : Update Thread', thread._id, { $set: { bookmarkedMessages: chatMessages?.filter(x => x.isBookmarked)?.length} })
     })
-    // await tick(); // Ensures the DOM updates with the new message
-    // scrollToBottom();
   }
 
   $m: {
-    // noThread = !details?.query?.threadId
-    // isLoading = !threadHandler.ready();
-
-    // console.log(thread)
 
     chatMessages = MessagesCollection.find( chatQuery, { sort: { index: 1 } } ).fetch();
 
@@ -117,13 +128,6 @@
       thread.instructions = thread.instructions.filter((x, i) => i!==idx)
       // console.log(thread.instructions)
     }
-    if (thread) {
-      thread.totalOutputTokens = _.chain(thread).get('instructions').filter(x => x.role === 'assistant').map('tokens').compact().sum().value()
-      thread.totalInputTokens  = _.chain(thread).get('instructions').filter(x => x.role !== 'assistant').map('tokens').compact().sum().value()
-      scrollToBottom()
-    }
-
-    // console.log(thread)
   }
 
   $: chatMessages, scrollToBottom();
@@ -139,11 +143,14 @@
   }
 
   .threadMeta {
-    backdrop-filter: brightness(150%);
+    background: var(--bs-threadMeta);
     margin: 0 10px;
     padding: 5px;
-    position: sticky;
+    position: absolute;
     border-radius: 5px;
+    border: 1px solid var(--bs-threadMetaBorder);
+    width: calc(100vw - 16.25em);
+    box-shadow: 0 2px 5px 0px var(--bs-threadMetaShadow);
   }
 
   .threadMeta summary {
@@ -176,11 +183,13 @@
   }
   .newMessage {
     padding: 6px 7px;
+    background: var(--bs-textarea);
+    border-radius: 5px;
   }
   .chatMessages {
     overflow-y: scroll;
-    height: calc(100vh - 11.5em);
-    padding: 10px;
+    height: calc(100vh - 9em);
+    padding: 40px 10px 10px 10px;
     display: flex;
     flex-direction: column;
     /*max-width: 800px; !* or your preferred max width *!*/
@@ -231,9 +240,10 @@
     min-width: 20%;
   }
 
+
   .sender {
     align-self: flex-end;
-    background-color: #007BFF; /* Blue for sender */
+    background-color: #0a8560; /* Blue for sender */
   }
 
   .responder {
@@ -250,7 +260,7 @@
     margin-bottom: 4px; /* Space between info and message content */
     border-bottom: 1px solid white;
     display: grid;
-    grid-template-columns: auto 4em;
+    grid-template-columns: auto 6em;
   }
 
   .message-info-icons {
@@ -282,7 +292,15 @@
   <div class="messagesContainer">
     <div class="threadsBox">
       <details class="threadMeta">
-        <summary class="font-monospace">Meta: {thread?.model?.toUpperCase()} : {thread.title}</summary>
+        <summary class="font-monospace">
+          {thread.title}
+          <span class="text-muted">[ {thread?.model?.toUpperCase()} ]</span>
+          <span class="text-muted">
+            [ Tokens {thread.totalTokens?.toLocaleString() ?? 0} :
+            Input {thread.totalInputTokens?.toLocaleString()} :
+            Output {thread.totalOutputTokens?.toLocaleString()} ]
+          </span>
+        </summary>
         <div class="instructionsContainer">
           <div class="instructions">
             <div class="userMessage">
@@ -327,11 +345,12 @@
         {#each chatMessages as msg}
           <div class="chat-bubble {msg.role === 'user' ? 'sender' : 'responder'}">
             <div class="message-info">
-              <span class="role">{msg.role === 'user' ? 'You' : 'AI'}, {M(new Date(msg.updatedAt)).fromNow()}</span>
+              <span class="role">{msg.role === 'user' ? 'You' : 'AI'}, {M(new Date(msg.updatedAt)).fromNow()} {msg.role === 'user' ? '' : ': ' + msg.model?.replace(/-/g, ' ')?.replace(/gpt /i, '')?.replace(/turbo/, 'Turbo')}</span>
               <span class="message-info-icons">
-              <a href="" class="delete-btn" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="circle-minus" /></a>
-              <a href="" class="copy-btn" on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
-              <a href="" class="reuse-btn" on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
+                <a href="" class="delete-btn" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="circle-minus" /></a>
+                <a href="" class="copy-btn" on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
+                <a href="" class="reuse-btn" on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
+                <a href="" class="reuse-btn" on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
               </span>
             </div>
             <div class="message-content">
@@ -342,9 +361,13 @@
         {/each}
       </div>
     </div>
-    <div class="input">
-      <textarea class="font-monospace newMessage" style="background: black" name="" id="" cols="30" rows="10" bind:value={newContent}></textarea>
-      <a href="#" class="" on:click|preventDefault={newMessage}><SvgIcons iconName="bubble-text" /></a>
-    </div>
+    {#if !showBookmarked}
+      <div class="input">
+        <textarea class="font-monospace newMessage" style="" name="" id="" cols="30" rows="10" placeholder="Enter text" bind:value={newContent}></textarea>
+        <a href="#" class="" on:click|preventDefault={newMessage}><SvgIcons iconName="square-rounded-arrow-up" /></a>
+      </div>
+      {:else}
+      <div class="text-center text-muted">Disable bookmark filter for sending new messages.</div>
+    {/if}
   </div>
 {/if}
