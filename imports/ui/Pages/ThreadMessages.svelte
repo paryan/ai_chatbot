@@ -53,7 +53,7 @@
     }
   })
 
-  let totalInputTokens = 0, totalOutputTokens = 0, instructionsList
+  let totalInputTokens = 0, totalOutputTokens = 0, totalTokens = 0, instructionsList
   let addInstructions = (x) => x, removeInstructions = (x) => x
 
 
@@ -108,14 +108,9 @@
       // console.log(data, messagesContainer, messagesContainer?.scrollTop, messagesContainer?.scrollHeight)
     })
   }
-  let removeMessage = async (msg) => {
-    Meteor.call('Messages : Remove Message', msg._id)
-  }
-  let bookmarkMessage = async (msg) => {
-    Meteor.call('Messages : Update Message', msg._id, { $set: { isBookmarked: !msg.isBookmarked } }, () => {
-      Meteor.call('Threads : Update Thread', thread._id, { $set: { bookmarkedMessages: chatMessages?.filter(x => x.isBookmarked)?.length} })
-    })
-  }
+  let removeMessage   = async (msg) => Meteor.call('Messages : Remove Message', thread._id, msg._id)
+  let bookmarkMessage = async (msg) => Meteor.call('Messages : Update Message', thread._id, msg._id, { $set: { isBookmarked: !msg.isBookmarked } })
+
 
   $m: {
 
@@ -131,6 +126,11 @@
       thread.instructions = thread.instructions.filter((x, i) => i!==idx)
       // console.log(thread.instructions)
     }
+
+    totalOutputTokens = _.chain(thread.instructions).filter(x => x.role === 'assistant').map('tokens').compact().sum().value()
+    totalInputTokens  = _.chain(thread.instructions).filter(x => x.role !== 'assistant').map('tokens').compact().sum().value()
+    totalTokens       = _.chain(thread.instructions).map('tokens').compact().sum().value()
+
   }
 
   $: chatMessages, scrollToBottom();
@@ -237,22 +237,31 @@
   .chat-bubble {
     padding: 10px;
     margin: 5px;
-    border-radius: 10px;
     color: #fff;
     max-width: 70%;
     min-width: 20%;
   }
 
-
   .sender {
     align-self: flex-end;
-    background-color: var(--bs-sender-bubble); /* Blue for sender */
+    /*background-color: var(--bs-responder-bubble); !* Blue for sender *!*/
   }
 
   .responder {
     align-self: flex-start;
-    background-color: var(--bs-responder-bubble); /* Gray for responder */
   }
+  .responder .message-content {
+    background-color: var(--bs-responder-bubble);
+    padding: 5px 10px;
+    border-radius: 10px;
+  }
+
+  .sender .message-content {
+    background-color: var(--bs-sender-bubble);
+    padding: 5px 10px;
+    border-radius: 10px;
+  }
+
 
   /* Message info (role, time, delete) */
   .message-info {
@@ -260,10 +269,11 @@
     /*display: flex;*/
     /*justify-content: space-between; !* Spreads out the info across the bubble *!*/
     padding-bottom: 4px; /* Space between info and message content */
-    margin-bottom: 4px; /* Space between info and message content */
+    /*margin-bottom: 4px; !* Space between info and message content *!*/
     border-bottom: 1px solid white;
     display: grid;
     grid-template-columns: auto 6em;
+    margin: 0 10px 0 5px;
   }
 
   .responder .message-info {
@@ -348,8 +358,8 @@
         </div>
         <div class="newThreadControls">
           <span><button class="btn btn-link addButton" on:click|preventDefault={addInstructions}><SvgIcons iconName="circle-plus" /><span class="addButtonText">Add Message</span></button></span>
-          <span class="btn btn-link text-decoration-none text-muted" style="cursor: default">Input Tokens: {thread.totalInputTokens?.toLocaleString()}</span>
-          <span class="btn btn-link text-decoration-none text-muted" style="cursor: default">Output Tokens: {thread.totalOutputTokens?.toLocaleString()}</span>
+          <span class="btn btn-link text-decoration-none text-muted" style="cursor: default">Input Tokens: {totalInputTokens?.toLocaleString()}</span>
+          <span class="btn btn-link text-decoration-none text-muted" style="cursor: default">Output Tokens: {totalOutputTokens?.toLocaleString()}</span>
           <select class="form-select" aria-label="Default select example" bind:value={thread.model}>
             {#each models as model}
               <option value="{model}">{model}</option>
@@ -363,7 +373,12 @@
         {#each chatMessages as msg}
           <div class="chat-bubble {msg.role === 'user' ? 'sender' : 'responder'}">
             <div class="message-info">
-              <span class="role">{msg.role === 'user' ? 'You' : 'AI'}, {M(new Date(msg.updatedAt)).fromNow()} {msg.role === 'user' ? '' : ': ' + msg.model?.replace(/-/g, ' ')?.replace(/gpt /i, 'GPT ')?.replace(/turbo/, 'Turbo')}</span>
+              <span class="role">
+                {msg.role === 'user' ? 'You' : 'AI'}, {M(new Date(msg.updatedAt)).fromNow()}
+                {msg.role === 'user' ? '' : ': ' + msg.model?.replace(/-/g, ' ')?.replace(/gpt /i, 'GPT ')?.replace(/turbo/, 'Turbo')}
+                {msg.role === 'user' ? '' : ': ' + ((msg.content?.match(/\b[-?(\w+)?]+\b/gi) ?? [])?.length?.toLocaleString() ?? '0') + ' Words'}
+                {msg.role === 'user' ? '' : ': ' + (msg.content?.length?.toLocaleString() ?? '0') + ' Chars'}
+              </span>
               <span class="message-info-icons">
                 <a href="" class="delete-btn" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="circle-minus" /></a>
                 <a href="" class="copy-btn"   on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
