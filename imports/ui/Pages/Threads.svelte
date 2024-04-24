@@ -41,6 +41,7 @@
     height: calc(100vh - 3.5em); /* Adjust the height as needed, here it's set to fill the viewport */
     gap: 10px; /* Optional: Adds space between grid rows and columns */
     backdrop-filter: brightness(1.5);
+    border-right: var(--bs-threads-border);
   }
 
   .newThread {
