@@ -33,13 +33,13 @@
   }
   .threadsContainer {
     display: grid;
-    grid-template-rows: auto 2em; /* Set the height for the top, middle, and bottom rows */
+    grid-template-rows: auto 3em; /* Set the height for the top, middle, and bottom rows */
     grid-template-columns: 1fr;   /* Two columns, each taking half of the width */
     grid-template-areas:
     "threads"
     "threadCount";
     height: calc(100vh - 3.5em); /* Adjust the height as needed, here it's set to fill the viewport */
-    gap: 10px; /* Optional: Adds space between grid rows and columns */
+    /*gap: 10px; !* Optional: Adds space between grid rows and columns *!*/
     backdrop-filter: brightness(1.5);
     border-right: var(--bs-threads-border);
   }
@@ -61,7 +61,13 @@
     grid-area: threadCount; /* Assigning the grid area */
     width: 100%; /* Ensures it stretches across the bottom */
     border-top: var(--bs-threads-border);
-    padding-top: 6px;
+    /*padding-top: 6px;*/
+    background: var(--bs-threads-background);
+    height: 3.5em;
+    display: flex;
+    align-items: center; /* Vertically centers the child elements */
+    justify-content: center; /* Optionally centers horizontally as well */
+    user-select: none;
   }
 
   /* Styling to improve visibility and layout aesthetics */
@@ -121,5 +127,5 @@
       </div>
     {/each}
   </div>
-  <div class="threadCount text-muted text-center" style="font-size: .9rem;">{threadCount.toLocaleString()} Threads</div>
+  <span class="threadCount text-muted text-center align-middle" style="font-size: .9rem;">{threadCount.toLocaleString()} Threads</span>
 </div>
