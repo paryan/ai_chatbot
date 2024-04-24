@@ -55,7 +55,7 @@
 
 <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary" style="height: 3.5em !important">
   <div class="container-fluid" style="flex-direction: row">
-    <a class="navbar-brand" href="/" style="color: #ff7300">A.I.</a>
+    <a class="navbar-brand" href="/" style="color: rgb(255 76 0)">A.I.</a>
     <span class="navbar-toggler" style=""
           type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
