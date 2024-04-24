@@ -9,6 +9,7 @@
   /*--bs-threadMetaShadow: rgba(238, 238, 238, 0.5) !important;*/
   --bs-threadMetaShadow: rgb(49 49 49 / 50%) !important;
   --bs-threads-border: 1px solid #dddbdb;
+  --bs-threads-background: #dddbdb;
 }
 
 [data-bs-theme="dark"] {
@@ -17,6 +18,7 @@
   --bs-threadMetaBorder: #494949;
   --bs-threadMetaShadow: rgba(49, 49, 49, 0.5) !important;
   --bs-threads-border: 1px solid #464545;
+  --bs-threads-background: #464545;
 }
 
 
