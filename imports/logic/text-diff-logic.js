@@ -48,7 +48,6 @@ const local = {
     const roundedMinutes = Math.ceil(minutes);
     return roundedMinutes <= 1 ? "less than a minute" : `${roundedMinutes} minutes`;
   },
-
 }
 
 module.exports = {
