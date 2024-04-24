@@ -77,8 +77,20 @@ Meteor.methods({
     await DB.ThreadsCollection.update({_id: threadId}, { $set: { updatedAt: NOW } })
     return allMessages
   },
-  'Messages : Update Message': (_id, update) => DB.MessagesCollection.update({_id}, update),
-  'Messages : Remove Message': (_id) => DB.MessagesCollection.remove({_id}),
+  'Messages : Update Message': async (threadId, _id, update) => {
+    let NOW = Date.now()
+    await DB.MessagesCollection.update({_id}, update)
+    
+    let count = await DB.MessagesCollection.find({threadId, isBookmarked: true}).count()
+    await DB.ThreadsCollection.update({_id: threadId}, { $set: { bookmarkedMessages: count } })
+    // console.log(threadId, count)
+  },
+  'Messages : Remove Message': async (threadId, _id) => {
+    await DB.MessagesCollection.remove({_id})
+    
+    let count = await DB.MessagesCollection.find({threadId, isBookmarked: true}).count()
+    await DB.ThreadsCollection.update({_id: threadId}, { $set: { bookmarkedMessages: count } })
+  },
   'Settings: Update Dark-Mode': (darkMode) => DB.SettingsCollection.update({type:'UI'}, {$set:{type:'UI', darkMode}}, {upsert: true}),
   'AI: Token Counter': async (data, models) => {
     let response = {}
