@@ -31,7 +31,7 @@
     instructions = _.chain(instructions).filter('content').map(x => ({...x, content: x.content?.trim()})).filter('content').value()
     if(!title.trim()) return alert('No Title. Failed to insert.')
     if (!instructions.length) return alert('No Instructions Found. Failed to insert.')
-    Meteor.call('Threads : New Thread', {title, selectedModel, instructions, totalInputTokens, totalOutputTokens, totalTokens}, (err, data) => {
+    Meteor.call('Threads : New Thread', {title, model:selectedModel, instructions, totalInputTokens, totalOutputTokens, totalTokens}, (err, data) => {
       resetThread()
       console.log(data)
     })
