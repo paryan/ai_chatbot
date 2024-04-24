@@ -246,12 +246,12 @@
 
   .sender {
     align-self: flex-end;
-    background-color: #0a8560; /* Blue for sender */
+    background-color: var(--bs-sender-bubble); /* Blue for sender */
   }
 
   .responder {
     align-self: flex-start;
-    background-color: #6c757d; /* Gray for responder */
+    background-color: var(--bs-responder-bubble); /* Gray for responder */
   }
 
   /* Message info (role, time, delete) */
@@ -266,8 +266,21 @@
     grid-template-columns: auto 6em;
   }
 
-  .message-info-icons {
+  .responder .message-info {
+    color: var(--bs-responder-info-text);
+    border-bottom: 1px solid var(--bs-responder-info-text);
+    user-select: none;
+  }
+
+  .sender .message-info {
+    color: var(--bs-sender-info-text);
+    border-bottom: 1px solid var(--bs-sender-info-text);
+    user-select: none;
+  }
+
+  .message-info-icons, .message-info-icons a {
     text-align: right;
+    color: var(--bs-responder-info-text) !important;
   }
   .delete-btn, .copy-btn, .reuse-btn {
     background: none;
@@ -279,7 +292,9 @@
 
   /* Message content styling */
   .message-content {
-    font-size: 1rem; /* Regular text size for message content */
+    font-size: 0.9rem; /* Regular text size for message content */
+    margin-top: 10px;
+    color: var(--bs-responder-content-text);
   }
 
   /* Optional: styling for hover state on delete button */
@@ -348,15 +363,15 @@
         {#each chatMessages as msg}
           <div class="chat-bubble {msg.role === 'user' ? 'sender' : 'responder'}">
             <div class="message-info">
-              <span class="role">{msg.role === 'user' ? 'You' : 'AI'}, {M(new Date(msg.updatedAt)).fromNow()} {msg.role === 'user' ? '' : ': ' + msg.model?.replace(/-/g, ' ')?.replace(/gpt /i, '')?.replace(/turbo/, 'Turbo')}</span>
+              <span class="role">{msg.role === 'user' ? 'You' : 'AI'}, {M(new Date(msg.updatedAt)).fromNow()} {msg.role === 'user' ? '' : ': ' + msg.model?.replace(/-/g, ' ')?.replace(/gpt /i, 'GPT ')?.replace(/turbo/, 'Turbo')}</span>
               <span class="message-info-icons">
                 <a href="" class="delete-btn" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="circle-minus" /></a>
-                <a href="" class="copy-btn" on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
-                <a href="" class="reuse-btn" on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
-                <a href="" class="reuse-btn" on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
+                <a href="" class="copy-btn"   on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
+                <a href="" class="reuse-btn"  on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
+                <a href="" class="reuse-btn"  on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
               </span>
             </div>
-            <div class="message-content">
+            <div class="message-content font-monospace">
               {@html parseMarkdown(msg.content)}
             </div>
               </div>
