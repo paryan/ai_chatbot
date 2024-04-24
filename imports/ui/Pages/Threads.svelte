@@ -60,6 +60,8 @@
   .threadCount {
     grid-area: threadCount; /* Assigning the grid area */
     width: 100%; /* Ensures it stretches across the bottom */
+    border-top: var(--bs-threads-border);
+    padding-top: 6px;
   }
 
   /* Styling to improve visibility and layout aesthetics */
