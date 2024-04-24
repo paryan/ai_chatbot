@@ -10,6 +10,11 @@
   --bs-threadMetaShadow: rgb(49 49 49 / 50%) !important;
   --bs-threads-border: 1px solid #dddbdb;
   --bs-threads-background: #dddbdb;
+  --bs-responder-bubble: #e0e0e1;
+  --bs-sender-bubble: #aedfd0;
+  --bs-responder-info-text: #6d707d;
+  --bs-sender-info-text: #6d707d;
+  --bs-responder-content-text: #292a2f;
 }
 
 [data-bs-theme="dark"] {
@@ -19,6 +24,10 @@
   --bs-threadMetaShadow: rgba(49, 49, 49, 0.5) !important;
   --bs-threads-border: 1px solid #464545;
   --bs-threads-background: #464545;
+  --bs-responder-bubble: #3a3f43;
+  --bs-sender-bubble: #0a8560;
+  --bs-sender-info-text: #6d707d;
+  --bs-responder-info-text: #8a8a8a;
 }
 
 
