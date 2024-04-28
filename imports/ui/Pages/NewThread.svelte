@@ -5,6 +5,7 @@
   import './Threads.css'
 
   import { onMount } from 'svelte';
+  import {router} from "tinro";
   onMount(() => { document.title = 'AI: New Thread'; });
 
   export let models
@@ -44,7 +45,8 @@
     if (!instructions.length) return alert('No Instructions Found. Failed to insert.')
     Meteor.call('Threads : New Thread', {title, model:selectedModel, instructions, totalInputTokens, totalOutputTokens, totalTokens, onlySendLatest:newThread.onlySendLatest }, (err, data) => {
       resetThread()
-      console.log(data)
+      router.goto('/threads?threadId=' + data)
+      // console.log(data)
     })
   }
 
