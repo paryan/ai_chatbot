@@ -81,7 +81,7 @@ textarea {
 }
 .newThreadControls {
   display: grid;
-  grid-template-columns: auto 15em 15em 10em 10em;
+  grid-template-columns: auto 10em 15em 15em 10em 10em;
   gap: 10px;
   padding: 0 10px;
   margin-bottom: 10px;

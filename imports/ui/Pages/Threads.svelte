@@ -112,6 +112,7 @@
             {#if thread.bookmarkedMessages}
               : <SvgIcons iconName="bookmark-filled" /> {thread.bookmarkedMessages.toLocaleString()}
             {/if}
+            {#if thread.onlySendLatest}<span style="position: relative; top: -2px"><SvgIcons iconName="analyze-14" /></span>{/if}
           </div>
         </div>
         <div class="dropdown">
