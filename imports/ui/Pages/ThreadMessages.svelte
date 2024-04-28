@@ -83,7 +83,7 @@
 
   let newMessage = () => {
     if (!newContent.trim()) return
-    Meteor.call('Messages : New Message', thread._id, newContent, 'user', thread.model, async (err, data) => {
+    Meteor.call('Messages : New Message', thread._id, newContent, 'user', thread.model, thread.onlySendLatest, async (err, data) => {
       await tick(); // Ensures the DOM updates with the new message
       scrollToBottom()
       let messages = [...thread.instructions, ...data]
@@ -168,8 +168,8 @@
   }
   .newThreadControls {
     border-top: 1px solid rgba(128, 128, 128, 0.46);
-    margin: 0px 10px 0 10px;
-    padding: 5px 0;
+    margin: 5px 10px 0 10px;
+    padding: 10px 0 5px 0;
   }
   .instructionsContainer .messages {
     border: 0
@@ -329,6 +329,7 @@
             Input {thread.totalInputTokens?.toLocaleString()} :
             Output {thread.totalOutputTokens?.toLocaleString()} ]
           </span>
+          {#if thread.onlySendLatest}<span style="position: relative; top: -2px"><SvgIcons iconName="analyze" /></span>{/if}
         </summary>
         <div class="instructionsContainer">
           <div class="instructions">
@@ -359,6 +360,10 @@
         </div>
         <div class="newThreadControls">
           <span><button class="btn btn-link addButton" on:click|preventDefault={addInstructions}><SvgIcons iconName="circle-plus" /><span class="addButtonText">Add Message</span></button></span>
+          <div class="form-check form-switch btn btn-link text-decoration-none text-muted text-start">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" bind:checked={thread.onlySendLatest}>
+            <label class="form-check-label  text-start" for="flexSwitchCheckDefault">Send Latest Only</label>
+          </div>
           <span class="btn btn-link text-decoration-none text-muted" style="cursor: default">Input Tokens: {totalInputTokens?.toLocaleString()}</span>
           <span class="btn btn-link text-decoration-none text-muted" style="cursor: default">Output Tokens: {totalOutputTokens?.toLocaleString()}</span>
           <select class="form-select" aria-label="Default select example" bind:value={thread.model}>
@@ -399,7 +404,7 @@
     {#if !showBookmarked}
       <div class="input">
         <textarea class="font-monospace newMessage" style="" name="" id="" cols="30" rows="10" placeholder="Enter text" bind:value={newContent}></textarea>
-        <a href="#" class="" on:click|preventDefault={newMessage}><SvgIcons iconName="square-rounded-arrow-up" /></a>
+        <button class="btn btn-link text-decoration-none text-muted" style="padding: 0" href="#" on:click|preventDefault={newMessage}><SvgIcons iconName="square-rounded-arrow-up" /></button>
       </div>
       {:else}
       <div class="text-center text-muted">Disable bookmark filter for sending new messages.</div>
