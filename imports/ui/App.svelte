@@ -14,7 +14,7 @@
   let threadHandler = Meteor.subscribe('dynamicQuery', 'SettingsCollection', {type:'UI'})
   let darkMode = true, toggleTheme=(x) => x, toggleBookmarked = (x) => x
 
-  let showBookmarked = false
+  let showBookmarked = false, selectedThread = ''
 
   $m: {
     let uiSettings = SettingsCollection.findOne({type:'UI'})
@@ -62,8 +62,8 @@
     </span>
     <div class="collapse navbar-collapse" id="navbarScroll">
       <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
-        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/new">New Thread</a> </li>
-        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/threads">Threads</a> </li>
+        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/new" on:click={() => selectedThread=''}>New Thread</a> </li>
+<!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/threads">Threads</a> </li>-->
 <!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/portfolio">Resume</a> </li>-->
 <!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/portfolio">Search</a> </li>-->
         <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/textDiff">Text-Diff</a> </li>
@@ -84,7 +84,7 @@
   </div>
 </nav>
 <div class="chatContainer">
-  <Threads {showBookmarked} />
+  <Threads {showBookmarked} {selectedThread} />
   <div class="threadDetailsContainer">
     <Route path="/" redirect="/new"/>
     <Route path="/threads" let:meta>    {#key meta?.query?.threadId} <ThreadMessages  {models}  {showBookmarked} details={meta} /> {/key}</Route>
