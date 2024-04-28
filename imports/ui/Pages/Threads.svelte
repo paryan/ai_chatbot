@@ -3,8 +3,10 @@
   import {ThreadsCollection} from "../../db/DatabaseCollection";
   import SvgIcons from "../Components/SvgIcons.svelte";
   const M = require('moment')
-  import {router} from 'tinro';
+  import {router, Route} from 'tinro';
   export let showBookmarked
+
+  export let selectedThread //= document.baseURI?.replace(/.*\/threads\?threadId=(.*)/, '$1')
 
   let isLoading = true, threads = [], threadCount = 0
   let Q = {isArchived:{$ne:true}}
@@ -12,6 +14,8 @@
   let threadHandler = Meteor.subscribe('dynamicQuery', 'ThreadsCollection', Q)
 
   $m: {
+    // selectedThread = document.baseURI?.replace(/.*\/threads\?threadId=(.*)/, '$1')
+
     if (showBookmarked) Q = {isArchived:{$ne:true}, bookmarkedMessages: {$gt:0}}
     else Q = {isArchived:{$ne:true}}
 
@@ -19,7 +23,6 @@
     threads = ThreadsCollection.find( Q, { sort: { updatedAt:-1, createdAt: -1 } } ).fetch();
     threadCount = threads.length
   }
-
 
 </script>
 
@@ -75,8 +78,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 5px 0;
-    padding: 5px;
+    /*margin: 5px 0;*/
+    padding: 8px 5px;
     font-size: 14px;
     border-bottom: 1px solid rgba(128, 128, 128, 0.24);
   }
@@ -96,14 +99,21 @@
     font-size: 80%;
   }
 
+  .selectedThread {
+    background-color: var(--bs-selected-thread);
+    font-weight: 600;
+  }
 
 </style>
 
 <div class="threadsContainer">
   <div class="threads">
     {#each threads as thread}
-      <div class="thread-meta" style="cursor: pointer;">
-        <div class="thread-content text-decoration-none" on:click={() => router.goto('/threads?threadId=' + thread._id)}>
+      <div class="thread-meta {selectedThread === thread._id ? 'selectedThread' : ''}" style="cursor: pointer;">
+        <div class="thread-content text-decoration-none" on:click={() => {
+          selectedThread = thread._id
+          router.goto('/threads?threadId=' + thread._id)
+        }}>
           <div class="thread-title text-truncate">{thread?.title ?? 'New Chat'}</div>
           <div class="thread-ts">
             {M(thread.updatedAt, 'x').format('MM/DD/YY')} :
