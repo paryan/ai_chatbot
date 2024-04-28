@@ -17,7 +17,12 @@
     sanitize: false, // Do NOT use sanitize in production without proper XSS mitigation
   });
 
-  const parseMarkdown = content => marked(content);
+  const parseMarkdown = content => {
+    let markDown = marked(content)
+    let mapping
+    _.range(3).map(x => markDown = markDown.replace(new RegExp('<h' + (x+1) + '>', 'ig'), '<h' + (x+3) + '>').replace(new RegExp('</h' + (x+1) + '>', 'ig'), '</h' + (x+3) + '>'))
+    return markDown
+  }
 
 
   export let details, models
