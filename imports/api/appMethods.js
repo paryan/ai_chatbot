@@ -31,6 +31,7 @@ Meteor.methods({
     }))?.tokens ?? 0
   },
   'AI: Chat Completion': async (model, messages) => {
+    // console.log(messages)
     return (await callAPI.POST({
       endpoint: 'AI/OpenAI/chat',
       headers: { 'Content-Type': 'application/json' },
@@ -67,7 +68,7 @@ Meteor.methods({
   'Threads : Update Thread': async (_id, update) => {
     return DB.ThreadsCollection.update({_id}, update)
   },
-  'Messages : New Message': async (threadId, content, role, model) => {
+  'Messages : New Message': async (threadId, content, role, model, onlySendLatest) => {
     let NOW = Date.now()
     
     let newIndex = ( (await DB.MessagesCollection.findOne({threadId}, { sort: { index: -1 } }))?.index ?? 0 ) + 1
@@ -75,7 +76,7 @@ Meteor.methods({
     await DB.MessagesCollection.insert({ threadId, role, content, model, index: newIndex, updatedAt: NOW, createdAt: NOW }) //?.[0]
     let allMessages = await DB.MessagesCollection.find({threadId}, { sort: { index: 1 } }).fetch()
     await DB.ThreadsCollection.update({_id: threadId}, { $set: { updatedAt: NOW } })
-    return allMessages
+    return onlySendLatest ? allMessages.slice(-1) : allMessages
   },
   'Messages : Update Message': async (threadId, _id, update) => {
     let NOW = Date.now()
