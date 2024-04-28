@@ -2,6 +2,10 @@
 /*@tailwind components;*/
 /*@tailwind utilities;*/
 
+:root {
+  --bs-selected-thread: #cecece;
+}
+
 [data-bs-theme=light] {
   --bs-textarea: #dedede !important;
   --bs-threadMeta: rgba(238, 238, 238, 0.95) !important;
@@ -15,6 +19,7 @@
   --bs-responder-info-text: #6d707d;
   --bs-sender-info-text: #6d707d;
   --bs-responder-content-text: #292a2f;
+  --bs-selected-thread: #cecece;
 }
 
 [data-bs-theme="dark"] {
@@ -29,6 +34,7 @@
   /*--bs-sender-bubble: #7ed3ff;*/
   --bs-sender-info-text: #6d707d;
   --bs-responder-info-text: #8a8a8a;
+  --bs-selected-thread: #222222;
 }
 
 
