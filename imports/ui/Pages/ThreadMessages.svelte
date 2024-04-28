@@ -272,7 +272,7 @@
     /*margin-bottom: 4px; !* Space between info and message content *!*/
     border-bottom: 1px solid white;
     display: grid;
-    grid-template-columns: auto 6em;
+    grid-template-columns: auto 8em;
     margin: 0 10px 0 5px;
   }
 
@@ -311,6 +311,7 @@
   .delete-btn:hover {
     opacity: 0.8;
   }
+
 </style>
 {#if !thread}
   <div class="user-select-none" style="margin: 10px"> ◀ Select a Thread</div>
@@ -380,14 +381,15 @@
                 {msg.role === 'user' ? '' : ': ' + (msg.content?.length?.toLocaleString() ?? '0') + ' Chars'}
               </span>
               <span class="message-info-icons">
-                <a href="" class="delete-btn" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="circle-minus" /></a>
-                <a href="" class="copy-btn"   on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
-                <a href="" class="reuse-btn"  on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
-                <a href="" class="reuse-btn"  on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
+                {#if msg.role !== 'user'}<a href="" class="markdown-btn" title="Show Markdown Version" on:click|preventDefault={() => msg.showMarkDown = !msg.showMarkDown}><SvgIcons iconName="{msg.showMarkDown ? 'markdown': 'markdown-off'}" /></a>{/if}
+                <a href="" class="delete-btn" title="Delete Message" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="circle-minus" /></a>
+                <a href="" class="copy-btn"   title="Copy to clipboard" on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
+                <a href="" class="reuse-btn"  title="Add to Input Box" on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
+                <a href="" class="reuse-btn"  title="Bookmark" on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
               </span>
             </div>
             <div class="message-content font-monospace">
-              {@html parseMarkdown(msg.content)}
+              {#if msg.showMarkDown}<pre style="white-space:break-spaces">{msg.content}</pre>{:else}{@html parseMarkdown(msg.content)}{/if}
             </div>
               </div>
 <!--                {scrollToBottom() ?? ''}-->
