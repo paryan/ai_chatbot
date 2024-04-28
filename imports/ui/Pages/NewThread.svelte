@@ -10,8 +10,18 @@
   export let models
   let selectedModel = models[0]
 
+  let newThread = {
+    model: models[0],
+    instructions: [
+      {role: 'system', content: 'You are a helpful assistant.', index: 0, tokens: 6}
+    ],
+    totalInputTokens: 0,
+    totalOutputTokens: 0,
+    totalTokens: 0,
+    onlySendLatest: false,
+  }
+
   let isLoading = true, threads = [], threadCount = 0, totalInputTokens = 0, totalOutputTokens = 0, totalTokens = 0, title = 'New Chat - ' + (new Date()).toLocaleDateString()
-  // let threadHandler = Meteor.subscribe('dynamicQuery', 'ThreadsCollection')
 
   let instructions = [
     {role: 'system', content: 'You are a helpful assistant.', index: 0, tokens: 6}
@@ -23,6 +33,7 @@
     ]
     title = 'New Chat - ' + (new Date()).toLocaleDateString()
     selectedModel = models[0]
+    newThread.onlySendLatest = false
   }
 
   let addMessage = (x) => x, removeMessage = (x) => x
@@ -31,7 +42,7 @@
     instructions = _.chain(instructions).filter('content').map(x => ({...x, content: x.content?.trim()})).filter('content').value()
     if(!title.trim()) return alert('No Title. Failed to insert.')
     if (!instructions.length) return alert('No Instructions Found. Failed to insert.')
-    Meteor.call('Threads : New Thread', {title, model:selectedModel, instructions, totalInputTokens, totalOutputTokens, totalTokens}, (err, data) => {
+    Meteor.call('Threads : New Thread', {title, model:selectedModel, instructions, totalInputTokens, totalOutputTokens, totalTokens, onlySendLatest:newThread.onlySendLatest }, (err, data) => {
       resetThread()
       console.log(data)
     })
@@ -88,6 +99,10 @@
   </div>
   <div class="newThreadControls">
     <span><button class="btn btn-link addButton" on:click|preventDefault={addMessage}><SvgIcons iconName="circle-plus" /><span class="addButtonText">Add Message</span></button></span>
+    <div class="form-check form-switch btn btn-link text-decoration-none text-muted text-start">
+      <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" bind:checked={newThread.onlySendLatest}>
+      <label class="form-check-label  text-start" for="flexSwitchCheckDefault">Send Latest Only</label>
+    </div>
     <span class="btn btn-link text-decoration-none text-muted" style="cursor: default">Input Tokens: {totalInputTokens?.toLocaleString()}</span>
     <span class="btn btn-link text-decoration-none text-muted" style="cursor: default">Output Tokens: {totalOutputTokens?.toLocaleString()}</span>
     <select class="form-select" aria-label="Default select example" bind:value={selectedModel}>
