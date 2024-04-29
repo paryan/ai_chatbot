@@ -117,7 +117,7 @@
           <div class="thread-title text-truncate">{thread?.title ?? 'New Chat'}</div>
           <div class="thread-ts">
             {M(thread.updatedAt, 'x').format('MM/DD/YY')} :
-            {M(thread.updatedAt, 'x').fromNow(true)} :
+            {M(thread.updatedAt, 'x').fromNow(true)?.match(/seconds/) ? 'Now' : M(thread.updatedAt, 'x').fromNow(true)} :
             {thread.model?.replace(/GPT[\-]*/i, 'v').replace('-turbo', '-T')}
             {#if thread.bookmarkedMessages}
               : <SvgIcons iconName="bookmark-filled" /> {thread.bookmarkedMessages.toLocaleString()}
