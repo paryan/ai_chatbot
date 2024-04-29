@@ -89,8 +89,9 @@
         </label>
         <textarea
           id="{msg.role}Message{idx}"
-          class="font-monospace"
-          rows="10" cols="20"
+          class="font-monospace messageTextArea"
+          rows="5" cols="20"
+          style="height: 100px !important;"
           autofocus="{idx+1 === instructions.length}"
           placeholder="Enter {_.startCase(msg.role)} Message"
           bind:value={msg.content}
