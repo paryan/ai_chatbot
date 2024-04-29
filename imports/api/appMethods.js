@@ -74,7 +74,7 @@ Meteor.methods({
     let newIndex = ( (await DB.MessagesCollection.findOne({threadId}, { sort: { index: -1 } }))?.index ?? 0 ) + 1
     
     await DB.MessagesCollection.insert({ threadId, role, content, model, index: newIndex, updatedAt: NOW, createdAt: NOW }) //?.[0]
-    let allMessages = await DB.MessagesCollection.find({threadId}, { sort: { index: 1 } }).fetch()
+    let allMessages = await DB.MessagesCollection.find({threadId, isHidden:{$ne:true}}, { sort: { index: 1 } }).fetch()
     await DB.ThreadsCollection.update({_id: threadId}, { $set: { updatedAt: NOW } })
     return onlySendLatest ? allMessages.slice(-1) : allMessages
   },
