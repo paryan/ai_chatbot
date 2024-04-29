@@ -10,10 +10,14 @@
 
   let isLoading = true, threads = [], threadCount = 0
 
+  // let fromNow = (x) => M(new Date(x)).fromNow(true)
 
   $m: {
     let Q = {isArchived:{$ne:true}}
     let options = { sort: { isPinned: -1, updatedAt:-1, createdAt: -1 } }
+
+    // fromNow = (x) => M(new Date(x)).fromNow(true)
+
     // selectedThread = document.baseURI?.replace(/.*\/threads\?threadId=(.*)/, '$1')
     let threadHandler = Meteor.subscribe('dynamicQuery', 'ThreadsCollection', Q, options)
 
@@ -22,6 +26,7 @@
 
     isLoading = !threadHandler.ready();
     threads = ThreadsCollection.find( Q, options ).fetch();
+    threads = threads.map(x => ({...x, fromNow: M(x.updatedAt, 'x').fromNow(true)?.match(/seconds/) ? 'Now' : M(x.updatedAt, 'x').fromNow(true) }))
     threadCount = threads.length
   }
 
@@ -117,8 +122,8 @@
         }}>
           <div class="thread-title text-truncate">{thread?.title ?? 'New Chat'}</div>
           <div class="thread-ts">
-            {M(thread.updatedAt, 'x').format('MM/DD/YY')} :
-            {M(thread.updatedAt, 'x').fromNow(true)?.match(/seconds/) ? 'Now' : M(thread.updatedAt, 'x').fromNow(true)} :
+            {M(thread.createdAt, 'x').format('MM/DD/YY')} :
+            { thread.fromNow } :
             {thread.model?.replace(/GPT[\-]*/i, 'v').replace('-turbo', '-T')}
             {#if thread.bookmarkedMessages}
               : <SvgIcons iconName="bookmark-filled" /> {thread.bookmarkedMessages.toLocaleString()}
@@ -129,9 +134,9 @@
         <div class="dropdown">
           <span class="dropdown-toggle noAfter" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding:0; margin: 0; "><SvgIcons iconName="dots-vertical" /></span>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Duplicate', thread._id)}>Duplicate</a></li>
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Duplicate Instructions', thread._id)}>Duplicate Instructions Only</a></li>
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Duplicate Thread', thread._id)}>Duplicate Thread</a></li>
             <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Update Thread', thread._id, {$set:{isArchived: true}})}>Archive</a></li>
-<!--            <li><a class="dropdown-item" href="#">Rename</a></li>-->
 <!--            <li><a class="dropdown-item" href="#">Delete</a></li>-->
           </ul>
         </div>
