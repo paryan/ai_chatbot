@@ -5,7 +5,7 @@
   import Portfolio from "./Pages/Portfolio.svelte";
   import Main from "./Pages/Main.svelte";
   import SvgIcons from "./Components/SvgIcons.svelte";
-  import Threads from "./Pages/Threads.svelte";
+  import ThreadsList from "./Pages/ThreadsList.svelte";
   import NewThread from "./Pages/NewThread.svelte";
 
   import {SettingsCollection} from "../db/DatabaseCollection";
@@ -84,7 +84,7 @@
   </div>
 </nav>
 <div class="chatContainer">
-  <Threads {showBookmarked} {selectedThread} />
+  <ThreadsList {showBookmarked} {selectedThread} />
   <div class="threadDetailsContainer">
     <Route path="/" redirect="/new"/>
     <Route path="/threads" let:meta>    {#key meta?.query?.threadId} <ThreadMessages  {models}  {showBookmarked} details={meta} /> {/key}</Route>
