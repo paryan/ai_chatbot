@@ -42,7 +42,7 @@ Meteor.methods({
     let NOW = Date.now()
     return DB.ThreadsCollection.insert({ ...record, updatedAt: NOW, createdAt: NOW }) //?.[0]
   },
-  'Threads : Duplicate': async (_id) => {
+  'Threads : Duplicate Thread': async (_id) => {
     let NOW = Date.now()
     let EXST = await DB.ThreadsCollection.findOne({_id})
     let oldThreadId = EXST._id
@@ -61,6 +61,15 @@ Meteor.methods({
     for (let i = 0; i < messages.length; i++) {
       DB.MessagesCollection.insert(messages[i])
     }
+  },
+  'Threads : Duplicate Instructions': async (_id) => {
+    
+    let NOW = Date.now()
+    let EXST = await DB.ThreadsCollection.findOne({_id})
+    
+    delete EXST._id
+    let NEW_ID = await DB.ThreadsCollection.insert({ ...EXST, updatedAt: NOW, createdAt: NOW })
+    
   },
   'Threads : Get Thread': async (Q) => {
     return DB.ThreadsCollection.findOne(Q) //?.[0]
