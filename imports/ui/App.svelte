@@ -70,6 +70,8 @@
         <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/usage">Usage <SvgIcons iconName="arrow-up-right" /> </a> </li>
         <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/docs/api-reference">API Ref <SvgIcons iconName="arrow-up-right" /> </a> </li>
         <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://chat.openai.com/">Chat GPT <SvgIcons iconName="arrow-up-right" /> </a> </li>
+        <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://gemini.google.com/app">Gemini <SvgIcons iconName="arrow-up-right" /> </a> </li>
+        <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://you.com/">You <SvgIcons iconName="arrow-up-right" /> </a> </li>
 
       </ul>
       <form class="d-flex" role="search">
