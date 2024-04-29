@@ -9,18 +9,19 @@
   export let selectedThread //= document.baseURI?.replace(/.*\/threads\?threadId=(.*)/, '$1')
 
   let isLoading = true, threads = [], threadCount = 0
-  let Q = {isArchived:{$ne:true}}
 
-  let threadHandler = Meteor.subscribe('dynamicQuery', 'ThreadsCollection', Q)
 
   $m: {
+    let Q = {isArchived:{$ne:true}}
+    let options = { sort: { isPinned: -1, updatedAt:-1, createdAt: -1 } }
     // selectedThread = document.baseURI?.replace(/.*\/threads\?threadId=(.*)/, '$1')
+    let threadHandler = Meteor.subscribe('dynamicQuery', 'ThreadsCollection', Q, options)
 
     if (showBookmarked) Q = {isArchived:{$ne:true}, bookmarkedMessages: {$gt:0}}
     else Q = {isArchived:{$ne:true}}
 
     isLoading = !threadHandler.ready();
-    threads = ThreadsCollection.find( Q, { sort: { updatedAt:-1, createdAt: -1 } } ).fetch();
+    threads = ThreadsCollection.find( Q, options ).fetch();
     threadCount = threads.length
   }
 
