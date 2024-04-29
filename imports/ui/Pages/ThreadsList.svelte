@@ -4,6 +4,7 @@
   import SvgIcons from "../Components/SvgIcons.svelte";
   const M = require('moment')
   import {router, Route} from 'tinro';
+  import ChatTime from "../Components/ChatTime.svelte";
   export let showBookmarked
 
   export let selectedThread //= document.baseURI?.replace(/.*\/threads\?threadId=(.*)/, '$1')
@@ -123,7 +124,7 @@
           <div class="thread-title text-truncate">{thread?.title ?? 'New Chat'}</div>
           <div class="thread-ts">
             {M(thread.createdAt, 'x').format('MM/DD/YY')} :
-            { thread.fromNow } :
+            <ChatTime timestamp={thread.updatedAt} /> :
             {thread.model?.replace(/GPT[\-]*/i, 'v').replace('-turbo', '-T')}
             {#if thread.bookmarkedMessages}
               : <SvgIcons iconName="bookmark-filled" /> {thread.bookmarkedMessages.toLocaleString()}
