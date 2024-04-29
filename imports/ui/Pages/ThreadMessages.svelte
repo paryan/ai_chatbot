@@ -38,8 +38,8 @@
   let chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId} : {noThread: true}
 
   $m: {
-    if (showBookmarked) chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId, isBookmarked: true} : {noThread: true}
-    else chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId} : {noThread: true}
+    if (showBookmarked) chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId, isBookmarked: true, isHidden:{$ne:true}} : {noThread: true}
+    else chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId, isHidden:{$ne:true} } : {noThread: true}
 
     // console.log('Messages', showBookmarked, chatQuery)
   }
@@ -113,7 +113,8 @@
       // console.log(data, messagesContainer, messagesContainer?.scrollTop, messagesContainer?.scrollHeight)
     })
   }
-  let removeMessage   = async (msg) => Meteor.call('Messages : Remove Message', thread._id, msg._id)
+  // let removeMessage   = async (msg) => Meteor.call('Messages : Remove Message', thread._id, msg._id)
+  let removeMessage   = async (msg) => Meteor.call('Messages : Update Message', thread._id, msg._id, { $set: { isHidden: !msg.isHidden } })
   let bookmarkMessage = async (msg) => Meteor.call('Messages : Update Message', thread._id, msg._id, { $set: { isBookmarked: !msg.isBookmarked } })
 
 
