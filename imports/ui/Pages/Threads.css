@@ -35,7 +35,7 @@ textarea {
 }
 .systemMessage, .userMessage, .assistantMessage {
   display: grid;
-  grid-template-rows: 1em 15em;
+  grid-template-rows: 1em auto;
   /*background: black;*/
   background: var(--bs-textarea);
   /*backdrop-filter: brightness(-2);*/
@@ -62,7 +62,11 @@ textarea {
 }
 
 .userMessage, .assistantMessage {
-  grid-template-rows: 1em 1.5em;
+  grid-template-rows: 1em auto;
+}
+
+.messageTextArea {
+  height: 100px
 }
 
 .removeLink {
