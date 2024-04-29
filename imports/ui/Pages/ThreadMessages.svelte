@@ -6,7 +6,23 @@
   import HeroMessage from "../Components/HeroMessage.svelte";
   import _ from "lodash";
   import M from 'moment'
-  import {marked} from 'marked';
+  // import {marked} from 'marked';
+
+  import { Marked } from "marked";
+  import { markedHighlight } from "marked-highlight";
+  import hljs from 'highlight.js';
+
+  const marked = new Marked(
+    markedHighlight({
+      langPrefix: 'hljs language-',
+      highlight(code, lang, info) {
+        const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+        let value = hljs.highlight(code, { language }).value;
+        return hljs.highlight(code, { language }).value;
+      }
+    })
+  );
+
 
   const route = meta();
   export let showBookmarked
@@ -15,12 +31,16 @@
     gfm: true, // GitHub Flavored Markdown
     breaks: true, // Line breaks
     sanitize: false, // Do NOT use sanitize in production without proper XSS mitigation
+    async: true,
   });
 
   const parseMarkdown = content => {
-    let markDown = marked(content)
+    let markDown = content
     let mapping
     _.range(3).map(x => markDown = markDown.replace(new RegExp('<h' + (x+1) + '>', 'ig'), '<h' + (x+3) + '>').replace(new RegExp('</h' + (x+1) + '>', 'ig'), '</h' + (x+3) + '>'))
+
+
+
     return markDown
   }
 
@@ -29,6 +49,7 @@
 
   import { onMount, tick } from 'svelte';
   import {copyText} from "../../api/Utils";
+  import ChatTime from "../Components/ChatTime.svelte";
 
   onMount(() => { document.title = 'AI - Threads'; });
 
@@ -61,6 +82,7 @@
   let totalInputTokens = 0, totalOutputTokens = 0, totalTokens = 0, instructionsList
   let addInstructions = (x) => x, removeInstructions = (x) => x
 
+  let showMeta = false
 
   onMount(() => {
     Meteor.subscribe('dynamicQuery', 'ThreadsCollection', threadQuery, () => {
@@ -85,6 +107,12 @@
     };
   });
 
+  function checkForSubmit(event) {
+    if (event.shiftKey && event.key === 'Enter') {
+      event.preventDefault(); // Prevents the default action of inserting a newline
+      newMessage(); // Call the function to handle submission
+    }
+  }
 
   let newMessage = () => {
     if (!newContent.trim()) return
@@ -162,6 +190,7 @@
     border: 1px solid var(--bs-threadMetaBorder);
     width: calc(100vw - 16.25em);
     box-shadow: 0 2px 5px 0px var(--bs-threadMetaShadow);
+    resize: vertical;
   }
 
   .threadMeta summary {
@@ -170,10 +199,18 @@
   }
 
   .instructionsContainer {
-    height: 15em;
+    height: calc(100vh - 15em);
+    max-height: 50%;
     overflow-y: scroll;
     margin-top: 5px;
   }
+
+  /*@media screen and (max-width: 2056px) {*/
+  /*  .instructionsContainer {*/
+  /*    height: calc(100vw - 57.5vw);*/
+  /*  }*/
+  /*}*/
+
   .newThreadControls {
     border-top: 1px solid rgba(128, 128, 128, 0.46);
     margin: 5px 10px 0 10px;
@@ -188,6 +225,13 @@
   .addButton .addButtonText {
     position: relative !important;
     top: 2px !important;;
+  }
+  details[open] {
+    background: var(--bs-threadMetaOpen);
+  }
+  details[open] .userMessage, details[open] .assistantMessage, details[open] .systemMessage {
+    background: var(--role-message) !important;
+    border: 1px solid var(--role-border);
   }
   details[open] summary {
     /*padding-left: 12px;*/
@@ -323,6 +367,10 @@
     opacity: 0.8;
   }
 
+  .messagesContainer .instructions {
+    border: 0;
+  }
+
 </style>
 {#if !thread}
   <div class="user-select-none" style="margin: 10px"> ◀ Select a Thread</div>
@@ -331,8 +379,8 @@
 {:else}
   <div class="messagesContainer">
     <div class="threadsBox">
-      <details class="threadMeta">
-        <summary class="font-monospace">
+      <details class="threadMeta" open="{showMeta}">
+        <summary class="font-monospace" on:click|preventDefault={() => showMeta=!showMeta}>
           {thread.title}
           <span class="text-muted">[ {thread?.model?.toUpperCase()} ]</span>
           <span class="text-muted">
@@ -346,7 +394,7 @@
           <div class="instructions">
             <div class="userMessage">
               <label for="userMessage0" class="font-monospace messageLabel" data-tokens="" style="cursor: pointer;">Title</label>
-              <textarea id="userMessage0" class="font-monospace" rows="10" cols="20" autofocus="" placeholder="Enter Title" bind:value={thread.title}></textarea>
+              <textarea id="userMessage0" class="font-monospace" rows="10" cols="20" style="height:30px;" autofocus="" placeholder="Enter Title" bind:value={thread.title}></textarea>
             </div>
             {#each thread.instructions ?? [] as msg, idx (msg.index)}
               <div class="{msg.role}Message">
@@ -358,8 +406,8 @@
                 </label>
                 <textarea
                   id="{msg.role}Message{idx}"
-                  class="font-monospace"
-                  rows="10" cols="20"
+                  class="font-monospace messageTextArea"
+                  rows="5" cols="20"
                   autofocus="{idx+1 === thread.instructions.length}"
                   placeholder="Enter {_.startCase(msg.role)} Message"
                   bind:value={msg.content}
@@ -382,7 +430,8 @@
               <option value="{model}">{model}</option>
             {/each}
           </select>
-          <button class="btn btn-primary updateButton" on:click|preventDefault={(x) => Meteor.call('Threads : Update Thread', thread._id, {..._.omit(thread, ['_id']), updatedAt: Date.now() } )}>Update Thread</button>
+          <button class="btn btn-primary updateButton" on:click|preventDefault={(x) =>
+            Meteor.call('Threads : Update Thread', thread._id, {..._.omit(thread, ['_id']), updatedAt: Date.now() }, () => {showMeta=false} )}>Update Thread</button>
         </div>
       </details>
 
@@ -391,7 +440,7 @@
           <div class="chat-bubble {msg.role === 'user' ? 'sender' : 'responder'}">
             <div class="message-info">
               <span class="role">
-                {msg.role === 'user' ? 'You' : 'AI'}, {fromNow(new Date(msg.updatedAt))}
+                {msg.role === 'user' ? 'You' : 'AI'}, <ChatTime timestamp={msg.updatedAt} />
                 {msg.role === 'user' ? '' : ': ' + msg.model?.replace(/-/g, ' ')?.replace(/gpt /i, 'GPT ')?.replace(/turbo/, 'Turbo')}
                 {msg.role === 'user' || msg.isHidden ? '' : ': ' + ((msg.content?.match(/\b[-?(\w+)?]+\b/gi) ?? [])?.length?.toLocaleString() ?? '0') + ' Words'}
                 {msg.role === 'user' || msg.isHidden ? '' : ': ' + (msg.content?.length?.toLocaleString() ?? '0') + ' Chars'}
@@ -408,7 +457,7 @@
               {#if msg.isHidden && !msg.tempShow}
                 <span>[Hidden]</span>
               {:else}
-                <span>{#if msg.showMarkDown}<pre style="white-space:break-spaces">{msg.content}</pre>{:else}{@html parseMarkdown(msg.content)}{/if}</span>
+                <span>{#if msg.showMarkDown}<pre style="white-space:break-spaces">{msg.content}</pre>{:else} {#await marked.parse(msg.content)}{:then parsedContent}{@html parseMarkdown(parsedContent)}{:catch error}{error}{/await}{/if}</span>
               {/if}
             </div>
               </div>
@@ -418,7 +467,7 @@
     </div>
     {#if !showBookmarked}
       <div class="input">
-        <textarea class="font-monospace newMessage" style="" name="" id="" cols="30" rows="10" placeholder="Enter text" bind:value={newContent}></textarea>
+        <textarea class="font-monospace newMessage" placeholder="Enter text" bind:value={newContent} on:keydown={checkForSubmit}></textarea>
         <button class="btn btn-link text-decoration-none text-muted" style="padding: 0" href="#" on:click|preventDefault={newMessage}><SvgIcons iconName="square-rounded-arrow-up" /></button>
       </div>
       {:else}
