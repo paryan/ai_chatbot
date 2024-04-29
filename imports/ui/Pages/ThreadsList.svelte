@@ -129,15 +129,16 @@
               : <SvgIcons iconName="bookmark-filled" /> {thread.bookmarkedMessages.toLocaleString()}
             {/if}
             {#if thread.onlySendLatest}<span style="position: relative; top: -2px"><SvgIcons iconName="analyze-14" /></span>{/if}
+            {#if thread.isPinned}<span style="position: relative; top: -2px"><SvgIcons iconName="pinned-filled-14" /></span>{/if}
           </div>
         </div>
         <div class="dropdown">
           <span class="dropdown-toggle noAfter" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding:0; margin: 0; "><SvgIcons iconName="dots-vertical" /></span>
           <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Update Thread', thread._id, {[thread.isPinned ? '$unset' : '$set']:{isPinned: true}})}>{thread.isPinned ? 'Unpin' : 'Pin To Top'}</a></li>
             <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Duplicate Instructions', thread._id)}>Duplicate Instructions Only</a></li>
             <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Duplicate Thread', thread._id)}>Duplicate Thread</a></li>
             <li><a class="dropdown-item" href="#" on:click|preventDefault={() => Meteor.call('Threads : Update Thread', thread._id, {$set:{isArchived: true}})}>Archive</a></li>
-<!--            <li><a class="dropdown-item" href="#">Delete</a></li>-->
           </ul>
         </div>
 <!--        <div class="thread-options"><SvgIcons iconName="dots-vertical" /></div>-->
