@@ -38,8 +38,8 @@
   let chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId} : {noThread: true}
 
   $m: {
-    if (showBookmarked) chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId, isBookmarked: true, isHidden:{$ne:true}} : {noThread: true}
-    else chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId, isHidden:{$ne:true} } : {noThread: true}
+    if (showBookmarked) chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId, isBookmarked: true} : {noThread: true}
+    else chatQuery = details?.query?.threadId ? {threadId: details?.query?.threadId } : {noThread: true}
 
     // console.log('Messages', showBookmarked, chatQuery)
   }
@@ -116,11 +116,13 @@
   // let removeMessage   = async (msg) => Meteor.call('Messages : Remove Message', thread._id, msg._id)
   let removeMessage   = async (msg) => Meteor.call('Messages : Update Message', thread._id, msg._id, { $set: { isHidden: !msg.isHidden } })
   let bookmarkMessage = async (msg) => Meteor.call('Messages : Update Message', thread._id, msg._id, { $set: { isBookmarked: !msg.isBookmarked } })
-
+  let fromNow = (x) => M().fromNow()
 
   $m: {
 
     chatMessages = MessagesCollection.find( chatQuery, { sort: { index: 1 } } ).fetch();
+
+    fromNow = (x) => M(x).fromNow()
 
     // if(chatMessages.length) scrollToBottom()
     addInstructions = () => {
@@ -268,6 +270,9 @@
     border-radius: 10px;
   }
 
+  .isHidden {
+    cursor: pointer;
+  }
 
   /* Message info (role, time, delete) */
   .message-info {
@@ -386,21 +391,25 @@
           <div class="chat-bubble {msg.role === 'user' ? 'sender' : 'responder'}">
             <div class="message-info">
               <span class="role">
-                {msg.role === 'user' ? 'You' : 'AI'}, {M(new Date(msg.updatedAt)).fromNow()}
+                {msg.role === 'user' ? 'You' : 'AI'}, {fromNow(new Date(msg.updatedAt))}
                 {msg.role === 'user' ? '' : ': ' + msg.model?.replace(/-/g, ' ')?.replace(/gpt /i, 'GPT ')?.replace(/turbo/, 'Turbo')}
-                {msg.role === 'user' ? '' : ': ' + ((msg.content?.match(/\b[-?(\w+)?]+\b/gi) ?? [])?.length?.toLocaleString() ?? '0') + ' Words'}
-                {msg.role === 'user' ? '' : ': ' + (msg.content?.length?.toLocaleString() ?? '0') + ' Chars'}
+                {msg.role === 'user' || msg.isHidden ? '' : ': ' + ((msg.content?.match(/\b[-?(\w+)?]+\b/gi) ?? [])?.length?.toLocaleString() ?? '0') + ' Words'}
+                {msg.role === 'user' || msg.isHidden ? '' : ': ' + (msg.content?.length?.toLocaleString() ?? '0') + ' Chars'}
               </span>
               <span class="message-info-icons">
                 {#if msg.role !== 'user'}<a href="" class="markdown-btn" title="Show Markdown Version" on:click|preventDefault={() => msg.showMarkDown = !msg.showMarkDown}><SvgIcons iconName="{msg.showMarkDown ? 'markdown': 'markdown-off'}" /></a>{/if}
-                <a href="" class="delete-btn" title="Delete Message" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="circle-minus" /></a>
+                <a href="" class="delete-btn" title="Delete Message" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="{ msg.isHidden ? 'eye-closed' : 'eye-14' }" /></a>
                 <a href="" class="copy-btn"   title="Copy to clipboard" on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
                 <a href="" class="reuse-btn"  title="Add to Input Box" on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
                 <a href="" class="reuse-btn"  title="Bookmark" on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
               </span>
             </div>
-            <div class="message-content font-monospace">
-              {#if msg.showMarkDown}<pre style="white-space:break-spaces">{msg.content}</pre>{:else}{@html parseMarkdown(msg.content)}{/if}
+            <div class="message-content font-monospace {msg.isHidden ? 'isHidden' : ''}"  on:click={() => { if(msg.isHidden) msg.tempShow=!msg.tempShow }}>
+              {#if msg.isHidden && !msg.tempShow}
+                <span>[Hidden]</span>
+              {:else}
+                <span>{#if msg.showMarkDown}<pre style="white-space:break-spaces">{msg.content}</pre>{:else}{@html parseMarkdown(msg.content)}{/if}</span>
+              {/if}
             </div>
               </div>
 <!--                {scrollToBottom() ?? ''}-->
