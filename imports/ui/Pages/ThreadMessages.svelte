@@ -371,6 +371,9 @@
     border: 0;
   }
 
+  .userMessage0 {
+    grid-template-rows: 1em 1.5em;
+  }
 </style>
 {#if !thread}
   <div class="user-select-none" style="margin: 10px"> ◀ Select a Thread</div>
@@ -392,7 +395,7 @@
         </summary>
         <div class="instructionsContainer">
           <div class="instructions">
-            <div class="userMessage">
+            <div class="userMessage userMessage0">
               <label for="userMessage0" class="font-monospace messageLabel" data-tokens="" style="cursor: pointer;">Title</label>
               <textarea id="userMessage0" class="font-monospace" rows="10" cols="20" style="height:30px;" autofocus="" placeholder="Enter Title" bind:value={thread.title}></textarea>
             </div>

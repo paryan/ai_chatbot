@@ -70,12 +70,14 @@
 </script>
 
 <style>
-
+  .userMessage0 {
+    grid-template-rows: 1em 1.5em;
+  }
 </style>
 
 <div class="messagesContainer">
   <div class="instructions">
-    <div class="userMessage">
+    <div class="userMessage userMessage0">
       <label for="userMessage0" class="font-monospace messageLabel" data-tokens="" style="cursor: pointer;">Title</label>
       <textarea id="userMessage0" class="font-monospace" rows="10" cols="20" autofocus="" placeholder="Enter Title" bind:value={title}></textarea>
     </div>
