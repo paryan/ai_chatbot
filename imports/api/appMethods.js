@@ -47,6 +47,8 @@ Meteor.methods({
     let EXST = await DB.ThreadsCollection.findOne({_id})
     let oldThreadId = EXST._id
     
+    EXST.title = EXST.title + ' (Copy)'
+    
     delete EXST._id
     let NEW_ID = await DB.ThreadsCollection.insert({ ...EXST, updatedAt: NOW, createdAt: NOW })
     
@@ -67,6 +69,7 @@ Meteor.methods({
     let NOW = Date.now()
     let EXST = await DB.ThreadsCollection.findOne({_id})
     
+    EXST.title = EXST.title + ' (Copy)'
     delete EXST._id
     let NEW_ID = await DB.ThreadsCollection.insert({ ...EXST, updatedAt: NOW, createdAt: NOW })
     
