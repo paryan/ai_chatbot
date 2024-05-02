@@ -1,8 +1,15 @@
 <script>
+  import DropZone from "../Components/DropZone.svelte";
+
   let Diff = require('../../logic/text-diff-logic')
   let _ = require('lodash')
 
+  import TurndownService from 'turndown';
+  const turndownService = new TurndownService({emDelimiter: '*'});
+
   import { onMount } from 'svelte';
+  import mammoth from "mammoth";
+  import pretty from "pretty";
   onMount(() => { document.title = 'AI: Text Diff'; });
 
   let result = '', stats1 = Diff.updateStats(''), stats2 = Diff.updateStats(''), text1, text2
@@ -18,18 +25,50 @@
     })
   }
 
+  function parseWordDocxFile(inputElement, text) {
+    let files = inputElement?.target?.files || [];
+    if (!files.length) return;
+    let file = files[0];
+
+    let reader = new FileReader();
+    reader.onloadend = function(event) {
+      let arrayBuffer = reader.result;
+
+      mammoth.convertToHtml({arrayBuffer: arrayBuffer}).then(function (resultObject) {
+        let markdown = turndownService.turndown(pretty(resultObject.value))
+        if(text === '1') {
+          text1 = markdown
+          stats1 = Diff.updateStats(text1)
+        }
+        else {
+          text2 = markdown
+          stats2 = Diff.updateStats(text2)
+        }
+        result = Diff.diff(text1, text2)
+      })
+
+      // mammoth.convertToMarkdown({arrayBuffer: arrayBuffer}).then(function (resultObject) {
+      //   markdown = resultObject.value
+      //   // console.log(resultObject.value)
+      // })
+    };
+    reader.readAsArrayBuffer(file);
+  }
 
 </script>
 
 <style>
 
-  code {
+  code, pre {
     display: block;
     /*background: white;*/
     /*color: #414141;*/
     padding: 10px;
     /*margin-top: 1rem;*/
     font-size: 50%;
+    white-space: break-spaces;
+    overflow: visible;
+    font-size: 14px;
   }
 
   .heading {
@@ -47,6 +86,9 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1em;
     padding: 0.25em 0;
+    overflow: scroll;
+    height: calc(100vh - 16.5em);
+    background: #f6f6f6;
   }
   b {
     display: block;
@@ -87,11 +129,9 @@
 
 <form id="diffForm">
   <div class="textInput">
-    <textarea name="text1" rows="20" cols="30" class="font-monospace" placeholder="Enter first text here..." bind:value={text1} on:keyup={(event) => {
-      // console.log(event.target.value)
+    <textarea name="text1" rows="15" cols="30" class="font-monospace" placeholder="Enter first text here..." bind:value={text1} on:keyup={(event) => {
       stats1 = Diff.updateStats(text1)
       result = Diff.diff(text1, text2)
-      // console.log(result)
     }}></textarea>
     <div>
       <table class="table">
@@ -101,6 +141,7 @@
             <td>{elem[1]?.toLocaleString()}</td>
           </tr>
         {/each}
+        <tr><td colspan="2" class="text-center"><DropZone on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}}, '1')} accept=".docx" /> </td></tr>
         <tr><td colspan="2" class="text-center"><button class="btn btn-link" on:click|preventDefault={() => getTokens(text1, '1')}>Calculate Tokens</button></td></tr>
         {#each tokens['1'] ?? [] as elem}
           <tr>
@@ -113,7 +154,7 @@
     </div>
   </div>
   <div class="textInput">
-    <textarea name="text2" rows="20" cols="30" class="font-monospace" placeholder="Enter second text here..." bind:value={text2} on:keyup={(event) => {
+    <textarea name="text2" rows="15" cols="30" class="font-monospace" placeholder="Enter second text here..." bind:value={text2} on:keyup={(event) => {
      // console.log(event.target.value)
      stats2 = Diff.updateStats(text2)
      result = Diff.diff(text1, text2)
@@ -127,6 +168,7 @@
             <td>{elem[1]?.toLocaleString()}</td>
           </tr>
         {/each}
+        <tr><td colspan="2" class="text-center"><DropZone on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}}, '2')} accept=".docx" /> </td></tr>
         <tr><td colspan="2" class="text-center"><button class="btn btn-link" on:click|preventDefault={() => getTokens(text2, '2')}>Calculate Tokens</button></td></tr>
         {#each tokens['2'] ?? [] as elem}
           <tr>
@@ -143,8 +185,8 @@
   <div class='heading'>{result.heading ?? ''}</div>
   {#if result.diffFound}
     <div class="diff">
-      <code>{@html result.before}</code>
-      <code>{@html result.after}</code>
+      <pre>{@html result.before}</pre>
+      <pre>{@html result.after}</pre>
     </div>
   {/if}
 </div>
