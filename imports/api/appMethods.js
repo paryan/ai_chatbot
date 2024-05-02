@@ -1,15 +1,9 @@
 import {Meteor} from "meteor/meteor";
-import { WebApp } from 'meteor/webapp';
-import mammoth from 'mammoth';
-import fs from 'fs'
 
 const _ = require('lodash')
 const DB = require('../db/DatabaseCollection');
 
 const callAPI = require('./apiCalls')
-
-const TurndownService = require('turndown');
-const turndownService = new TurndownService();
 
 Meteor.methods({
   'tasks.insert' (text) {
@@ -124,8 +118,4 @@ Meteor.methods({
     }
     return _.chain(response).toPairs().map(x => ({model: _.startCase(x[0]).replace(/GPT/i, 'GPT').replace(/([0-9]) ([0-9])/gi, '$1.$2'), tokens: x[1]})).value()
   },
-  'convertToMarkdown' (inputText) {
-    console.log(turndownService)
-    return turndownService.turndown(inputText)
-  }
 })
