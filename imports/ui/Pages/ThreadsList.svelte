@@ -35,7 +35,7 @@
 
 <style>
   :root{
-    --thread-content-width: 15em;
+    --thread-content-width: 18em;
   }
   .chatContainer {
     display: grid;
