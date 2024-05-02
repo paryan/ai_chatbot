@@ -10,6 +10,7 @@
 
   import {SettingsCollection} from "../db/DatabaseCollection";
   import TextDiff from "./Pages/TextDiff.svelte";
+  import Converter from "./Pages/Converter.svelte";
 
   let threadHandler = Meteor.subscribe('dynamicQuery', 'SettingsCollection', {type:'UI'})
   let darkMode = true, toggleTheme=(x) => x, toggleBookmarked = (x) => x
@@ -51,6 +52,35 @@
     font-weight: 500;
     letter-spacing: 0.05em;
   }
+  .separator {
+    border-left: 1px solid;
+    margin-left: 5px;
+    padding-left: 5px;
+  }
+  .navOptions {
+    background: var(--nav-background);
+    color: var(--nav-text);
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 3px;
+    margin-right: 10px;
+  }
+  .navOptions li a {
+    letter-spacing: 1px;
+    color: var(--nav-text);
+  }
+  .navOptions li:has(.active) {
+    /*padding-top: 3px;*/
+    /*padding-bottom: 3px;*/
+  }
+  .navOptions li:has(.active) a {
+    color: var(--nav-selected-text);
+    background: var(--nav-selected-background);
+    line-height: 16px;
+    margin-top: 4px;
+    border-radius: 3px;
+    font-weight: 400;
+  }
 </style>
 
 <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary" style="height: 3.5em !important">
@@ -61,18 +91,19 @@
       <span class="navbar-toggler-icon"></span>
     </span>
     <div class="collapse navbar-collapse" id="navbarScroll">
-      <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+      <ul class="navbar-nav my-2 my-lg-0 navbar-nav-scroll navOptions" style="--bs-scroll-height: 100px;">
         <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/new" on:click={() => selectedThread=''}>New Thread</a> </li>
-<!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/threads">Threads</a> </li>-->
-<!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/portfolio">Resume</a> </li>-->
-<!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/portfolio">Search</a> </li>-->
         <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/textDiff">Text-Diff</a> </li>
-        <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/usage">Usage <SvgIcons iconName="arrow-up-right" /> </a> </li>
-        <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/docs/api-reference">API Ref <SvgIcons iconName="arrow-up-right" /> </a> </li>
-        <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://chat.openai.com/">Chat GPT <SvgIcons iconName="arrow-up-right" /> </a> </li>
-        <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://gemini.google.com/app">Gemini <SvgIcons iconName="arrow-up-right" /> </a> </li>
-        <li class="nav-item"> <a class="nav-link" target="_blank" rel="noreferrer" href="https://you.com/">You <SvgIcons iconName="arrow-up-right" /> </a> </li>
-
+        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/converter">Convert</a> </li>
+        <!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/threads">Threads</a> </li>-->
+        <!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/portfolio">Search</a> </li>-->
+      </ul>
+      <ul class="d-flex navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+        <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/usage">Usage <SvgIcons iconName="arrow-up-right" /> </a>
+        <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/docs/api-reference">API Ref <SvgIcons iconName="arrow-up-right" /> </a>
+        <a class="nav-link" target="_blank" rel="noreferrer" href="https://chat.openai.com/">Chat GPT <SvgIcons iconName="arrow-up-right" /> </a>
+        <a class="nav-link" target="_blank" rel="noreferrer" href="https://gemini.google.com/app">Gemini <SvgIcons iconName="arrow-up-right" /> </a>
+        <a class="nav-link" target="_blank" rel="noreferrer" href="https://you.com/">You <SvgIcons iconName="arrow-up-right" /> </a>
       </ul>
       <form class="d-flex" role="search">
         <a href='#' on:click|preventDefault={toggleBookmarked} class="pe-pointer" style="color:{darkMode?'white':'black'}">
@@ -90,6 +121,7 @@
   <div class="threadDetailsContainer">
     <Route path="/" redirect="/new"/>
     <Route path="/threads" let:meta>    {#key meta?.query?.threadId} <ThreadMessages  {models}  {showBookmarked} details={meta} /> {/key}</Route>
+    <Route path="/converter" let:meta>  <Converter details={meta} /></Route>
     <Route path="/portfolio" let:meta>  <Portfolio details={meta} /></Route>
     <Route path="/textDiff" let:meta>   <TextDiff details={meta} {models} /></Route>
     <Route path="/new" let:meta>        <NewThread details={meta} {models} /></Route>
