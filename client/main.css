@@ -7,10 +7,21 @@
 }
 
 [data-bs-theme=light] {
+  --nav-background: #0a66c2;
+  --nav-text: white;
+  --nav-selected-text: #383838;
+  --nav-selected-background: white;
+
+  --dropzone-border: #acacac;
+  --dropzone-background: #f6f6f6;
+  --dropzone-background-hover: #e8f5e9;
+
   --role-message: white;
   --role-border: rgba(128, 128, 128, 0.56);
 
-  --bs-textarea: #dedede !important;
+  --converter-output: #f8f8f8;
+
+  --bs-textarea: #edecec !important;
   --bs-threadMeta: rgba(238, 238, 238, 0.95) !important;
   --bs-threadMetaOpen: rgba(238, 238, 238) !important;
   --bs-threadMetaBorder: #ddd;
@@ -27,8 +38,19 @@
 }
 
 [data-bs-theme="dark"] {
+  --nav-background: white;
+  --nav-text: #383838;
+  --nav-selected-text: white;
+  --nav-selected-background: #0a66c2;
+
+  --dropzone-border: #5e5d5d;
+  --dropzone-background: #272727;
+  --dropzone-background-hover: #8c9b8f;
+
   --role-message: #1f1f1f;
   --role-border: rgb(17, 17, 17);
+
+  --converter-output: #353434;
 
   --bs-textarea: rgb(18, 18, 18) !important;
   --bs-threadMeta: rgba(49, 49, 49, 0.9) !important;
