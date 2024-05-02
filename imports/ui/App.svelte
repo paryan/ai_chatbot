@@ -44,7 +44,7 @@
   }
   .chatContainer {
     display: grid;
-    grid-template-columns: 15em auto;
+    grid-template-columns: 18em auto;
     overflow: hidden;
   }
 
