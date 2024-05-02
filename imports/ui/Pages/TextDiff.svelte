@@ -10,6 +10,7 @@
   import { onMount } from 'svelte';
   import mammoth from "mammoth";
   import pretty from "pretty";
+  import TextDiffArea from "../Components/TextDiffArea.svelte";
   onMount(() => { document.title = 'AI: Text Diff'; });
 
   let result = '', stats1 = Diff.updateStats(''), stats2 = Diff.updateStats(''), text1, text2
@@ -25,35 +26,7 @@
     })
   }
 
-  function parseWordDocxFile(inputElement, text) {
-    let files = inputElement?.target?.files || [];
-    if (!files.length) return;
-    let file = files[0];
 
-    let reader = new FileReader();
-    reader.onloadend = function(event) {
-      let arrayBuffer = reader.result;
-
-      mammoth.convertToHtml({arrayBuffer: arrayBuffer}).then(function (resultObject) {
-        let markdown = turndownService.turndown(pretty(resultObject.value))
-        if(text === '1') {
-          text1 = markdown
-          stats1 = Diff.updateStats(text1)
-        }
-        else {
-          text2 = markdown
-          stats2 = Diff.updateStats(text2)
-        }
-        result = Diff.diff(text1, text2)
-      })
-
-      // mammoth.convertToMarkdown({arrayBuffer: arrayBuffer}).then(function (resultObject) {
-      //   markdown = resultObject.value
-      //   // console.log(resultObject.value)
-      // })
-    };
-    reader.readAsArrayBuffer(file);
-  }
 
 </script>
 
@@ -65,10 +38,14 @@
     /*color: #414141;*/
     padding: 10px;
     /*margin-top: 1rem;*/
+    margin: 0;
     font-size: 50%;
     white-space: break-spaces;
     overflow: visible;
     font-size: 14px;
+    background: var(--diff-results);
+    border: 1px solid var(--diff-results-border);
+    border-radius: 5px;
   }
 
   .heading {
@@ -76,19 +53,18 @@
     font-weight: bold;
   }
   #result {
-    padding: 0 1em;
+    padding: 0 .5em;
     font-size: 2rem;
     /*border: 1px solid grey;*/
   }
   .diff {
-    border-top: 1px solid grey;
+    /*border-top: 1px solid grey;*/
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1em;
-    padding: 0.25em 0;
+    gap: 0.5em;
+    /*padding: 0.25em 0;*/
     overflow: scroll;
-    height: calc(100vh - 16.5em);
-    background: #f6f6f6;
+    height: calc(100vh - 15.1em);
   }
   b {
     display: block;
@@ -99,6 +75,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1em;
     padding: 1em;
+    width: calc(100vw - 18em);
   }
   .textInput {
     display: grid;
@@ -123,67 +100,26 @@
     gap: 0em;
     padding: .25em;
   }
-
+  table {
+    font-size: 95%
+  }
 
 </style>
 
 <form id="diffForm">
-  <div class="textInput">
-    <textarea name="text1" rows="15" cols="30" class="font-monospace" placeholder="Enter first text here..." bind:value={text1} on:keyup={(event) => {
-      stats1 = Diff.updateStats(text1)
-      result = Diff.diff(text1, text2)
-    }}></textarea>
-    <div>
-      <table class="table">
-        {#each _.chain(stats1).toPairs().value() as elem}
-          <tr>
-            <th>{elem[0]}:</th>
-            <td>{elem[1]?.toLocaleString()}</td>
-          </tr>
-        {/each}
-        <tr><td colspan="2" class="text-center"><DropZone on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}}, '1')} accept=".docx" /> </td></tr>
-        <tr><td colspan="2" class="text-center"><button class="btn btn-link" on:click|preventDefault={() => getTokens(text1, '1')}>Calculate Tokens</button></td></tr>
-        {#each tokens['1'] ?? [] as elem}
-          <tr>
-            <th>{elem?.model ?? ''}</th>
-            <td>{elem?.tokens?.toLocaleString() ?? ''}</td>
-          </tr>
-        {/each}
+  <TextDiffArea {models} inputText={text1} on:textChange={(e) => {
+    text1 = e.detail
+    result = Diff.diff(text1, text2)
+  }} />
+  <TextDiffArea {models} inputText={text2} on:textChange={(e) => {
+    text2 = e.detail
+    result = Diff.diff(text1, text2)
+  }} />
 
-      </table>
-    </div>
-  </div>
-  <div class="textInput">
-    <textarea name="text2" rows="15" cols="30" class="font-monospace" placeholder="Enter second text here..." bind:value={text2} on:keyup={(event) => {
-     // console.log(event.target.value)
-     stats2 = Diff.updateStats(text2)
-     result = Diff.diff(text1, text2)
-     // console.log(result)
-   }}></textarea>
-    <div>
-      <table class="table">
-        {#each _.chain(stats2).toPairs().value() as elem}
-          <tr>
-            <th>{elem[0]}</th>
-            <td>{elem[1]?.toLocaleString()}</td>
-          </tr>
-        {/each}
-        <tr><td colspan="2" class="text-center"><DropZone on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}}, '2')} accept=".docx" /> </td></tr>
-        <tr><td colspan="2" class="text-center"><button class="btn btn-link" on:click|preventDefault={() => getTokens(text2, '2')}>Calculate Tokens</button></td></tr>
-        {#each tokens['2'] ?? [] as elem}
-          <tr>
-            <th>{elem?.model ?? ''}</th>
-            <td>{elem?.tokens?.toLocaleString() ?? ''}</td>
-          </tr>
-        {/each}
-
-      </table>
-    </div>
-  </div>
 </form>
 <div style="" id="result">
-  <div class='heading'>{result.heading ?? ''}</div>
-  {#if result.diffFound}
+  {#if result.heading}<div class='heading'>{result.heading ?? ''}</div>{/if}
+  {#if result.diffFound && result.diffFound !== 'No Diff'}
     <div class="diff">
       <pre>{@html result.before}</pre>
       <pre>{@html result.after}</pre>

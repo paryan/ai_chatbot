@@ -116,7 +116,7 @@
     </div>
   </div>
 </nav>
-<div class="chatContainer">
+<div class="chatContainer" style="overflow: hidden !important; position: fixed">
   <ThreadsList {showBookmarked} {selectedThread} />
   <div class="threadDetailsContainer">
     <Route path="/" redirect="/new"/>

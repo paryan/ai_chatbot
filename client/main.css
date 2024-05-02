@@ -16,6 +16,9 @@
   --dropzone-background: #f6f6f6;
   --dropzone-background-hover: #e8f5e9;
 
+  --diff-results: #fafafa;
+  --diff-results-border: #dadada;
+
   --role-message: white;
   --role-border: rgba(128, 128, 128, 0.56);
 
@@ -46,6 +49,9 @@
   --dropzone-border: #5e5d5d;
   --dropzone-background: #272727;
   --dropzone-background-hover: #8c9b8f;
+
+  --diff-results: #2d2d2d;
+  --diff-results-border: #4d4d4d;
 
   --role-message: #1f1f1f;
   --role-border: rgb(17, 17, 17);

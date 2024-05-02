@@ -62,6 +62,7 @@
   height: calc(100vh - 3.5em);
   padding: 10px;
   gap: 10px;
+  width: calc(100vw - 18em);
 }
 .convertContainer textarea {
   border: 1px solid grey;

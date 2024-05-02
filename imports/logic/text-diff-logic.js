@@ -54,7 +54,7 @@ module.exports = {
   diff: (text1, text2) => {
     const result = diff.diffPatch(text1, text2)
     result.diffFound = result.before !== result.after
-    result.heading = result.before === result.after ? 'No Diff' : 'Diff Results'
+    result.heading = result.before === result.after ? 'No Diff' : ''
     result.before = result.before.replace(/<del>/g, '<del style="color:red">').replace(/<ins>/g, '<ins style="color:#06cd06">')
     result.after = result.after.replace(/<del>/g, '<del style="color:red">').replace(/<ins>/g, '<ins style="color:#06cd06">')
     return result
@@ -75,7 +75,7 @@ module.exports = {
       Sentences: sentences ? sentences.length : 0,
       Paragraphs: paragraphs ? paragraphs.length + 1 : 0,
       'Reading Level': readingLabel,
-      'Reading Time': readingTime
+      'Time To Read': readingTime
     }
   }
 }

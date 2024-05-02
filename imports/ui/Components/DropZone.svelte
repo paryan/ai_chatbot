@@ -67,5 +67,5 @@
      on:click={() => fileInput.click()}
 >
   <input type="file" class="fileUploader" accept="{accept}" bind:this={fileInput} on:change={handleClick}>
-  Drag and drop files here or click to upload.
+  Drop files here or click to upload.
 </div>

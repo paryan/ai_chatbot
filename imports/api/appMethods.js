@@ -114,6 +114,7 @@ Meteor.methods({
         headers: { 'Content-Type': 'text/plain' },
         data
       })
+      // console.log(i, models[i], B.tokens, B)
       response[models[i]] = B.tokens;
     }
     return _.chain(response).toPairs().map(x => ({model: _.startCase(x[0]).replace(/GPT/i, 'GPT').replace(/([0-9]) ([0-9])/gi, '$1.$2'), tokens: x[1]})).value()

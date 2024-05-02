@@ -188,7 +188,7 @@
     position: absolute;
     border-radius: 5px;
     border: 1px solid var(--bs-threadMetaBorder);
-    width: calc(100vw - 16.25em);
+    width: calc(100vw - 19.25em);
     box-shadow: 0 2px 5px 0px var(--bs-threadMetaShadow);
     resize: vertical;
   }
