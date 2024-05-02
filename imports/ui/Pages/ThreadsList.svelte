@@ -110,7 +110,9 @@
     background-color: var(--bs-selected-thread);
     font-weight: 600;
   }
-
+  .dropdown-toggle::after {
+    display: none;
+  }
 </style>
 
 <div class="threadsContainer">
