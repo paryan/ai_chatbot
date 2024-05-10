@@ -122,15 +122,15 @@
       let messages = [...thread.instructions, ...data]
       newContent = ''
       Meteor.call('AI: Chat Completion', thread.model, messages, async (err1, aiMsg) => {
-        // console.log(messages, aiMsg)
-        thread.totalInputTokens = aiMsg.prompt_tokens
-        thread.totalOutputTokens = aiMsg.completion_tokens
-        thread.totalTokens = aiMsg.total_tokens
+        if(aiMsg?.prompt_tokens) console.log(aiMsg)
+        thread.totalInputTokens = aiMsg?.prompt_tokens ?? thread.totalInputTokens
+        thread.totalOutputTokens = aiMsg?.completion_tokens ?? thread.totalOutputTokens
+        thread.totalTokens = aiMsg?.total_tokens ?? thread.totalTokens
         // console.log({totalInputTokens: aiMsg.prompt_tokens, totalOutputTokens: aiMsg.completion_tokens, updatedAt: Date.now() })
         await Meteor.call('Threads : Update Thread', thread._id, { $set: {
-            totalInputTokens: aiMsg.prompt_tokens,
-            totalOutputTokens: aiMsg.completion_tokens,
-            totalTokens: aiMsg.total_tokens,
+            totalInputTokens: aiMsg?.prompt_tokens ?? thread.totalInputTokens,
+            totalOutputTokens: aiMsg?.completion_tokens ?? thread.totalOutputTokens,
+            totalTokens: aiMsg?.total_tokens ?? thread.totalTokens,
             updatedAt: Date.now() } })
         await Meteor.call('Messages : New Message', thread._id, aiMsg.content, aiMsg.role, thread.model, async () => {
           await tick(); // Ensures the DOM updates with the new message
