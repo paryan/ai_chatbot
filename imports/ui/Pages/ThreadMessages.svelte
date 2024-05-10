@@ -163,9 +163,9 @@
       // console.log(thread.instructions)
     }
 
-    totalOutputTokens = _.chain(thread.instructions).filter(x => x.role === 'assistant').map('tokens').compact().sum().value()
-    totalInputTokens  = _.chain(thread.instructions).filter(x => x.role !== 'assistant').map('tokens').compact().sum().value()
-    totalTokens       = _.chain(thread.instructions).map('tokens').compact().sum().value()
+    totalOutputTokens = _.chain(thread).get('instructions').filter(x => x.role === 'assistant').map('tokens').compact().sum().value()
+    totalInputTokens  = _.chain(thread).get('instructions').filter(x => x.role !== 'assistant').map('tokens').compact().sum().value()
+    totalTokens       = _.chain(thread).get('instructions').map('tokens').compact().sum().value()
 
   }
 
