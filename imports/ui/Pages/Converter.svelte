@@ -14,6 +14,9 @@
   import TurndownService from 'turndown';
   const turndownService = new TurndownService({emDelimiter: '*'});
   import SvgIcons from "../Components/SvgIcons.svelte";
+  import {onMount} from "svelte";
+
+  onMount(() => { document.title = 'AI - Convert HTML to Markdown'; });
 
   function parseWordDocxFile(inputElement) {
     let files = inputElement?.target?.files || [];
@@ -112,12 +115,15 @@
   background: #0a8560;
   color: white;
 }
+pre:focus-visible {
+  outline: none;
+}
 </style>
 
 <div class="convertContainer">
 
   <textarea name="" id="" cols="30" rows="10" bind:value={inputText} on:keyup={debounced} placeholder="Input text here..."></textarea>
-  <pre><div class="copyButton" on:click={() => copyText(markdown)}><SvgIcons iconName="copy-14" /></div>{markdown}</pre>
+  <pre contenteditable="true"><div class="copyButton" on:click={() => copyText(markdown)}><SvgIcons iconName="copy-14" /></div>{markdown}</pre>
   <div class="buttonRow"><DropZone bind:files={selectedFiles} on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}})} accept=".docx" /></div>
 
 </div>
