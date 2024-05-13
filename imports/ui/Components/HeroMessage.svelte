@@ -7,7 +7,10 @@
   .heroMessage {
     padding: 10em 0;
     margin-top: 1em;
-    width: 100%;
+    /*width: 100%;*/
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 1px;
   }
 </style>
 
