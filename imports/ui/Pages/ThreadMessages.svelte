@@ -116,7 +116,7 @@
 
   let newMessage = () => {
     if (!newContent.trim()) return
-    lastStatus = 'Sending...'
+    lastStatus = 'Processing...'
     Meteor.call('Messages : New Message', thread._id, newContent, 'user', thread.model, thread.onlySendLatest, async (err, data) => {
       await tick(); // Ensures the DOM updates with the new message
       scrollToBottom()
@@ -124,6 +124,7 @@
       newContent = ''
       inputTokens = 0
       Meteor.call('AI: Chat Completion', thread.model, messages, async (err1, aiMsg) => {
+
         if(!aiMsg?.content) {
           lastStatus = 'Failed'
           console.log(aiMsg)
@@ -131,17 +132,19 @@
         thread.totalInputTokens = aiMsg?.prompt_tokens ?? thread.totalInputTokens
         thread.totalOutputTokens = aiMsg?.completion_tokens ?? thread.totalOutputTokens
         thread.totalTokens = aiMsg?.total_tokens ?? thread.totalTokens
-        // console.log({totalInputTokens: aiMsg.prompt_tokens, totalOutputTokens: aiMsg.completion_tokens, updatedAt: Date.now() })
+
         await Meteor.call('Threads : Update Thread', thread._id, { $set: {
             totalInputTokens: aiMsg?.prompt_tokens ?? thread.totalInputTokens,
             totalOutputTokens: aiMsg?.completion_tokens ?? thread.totalOutputTokens,
             totalTokens: aiMsg?.total_tokens ?? thread.totalTokens,
             updatedAt: Date.now() } })
+
         await Meteor.call('Messages : New Message', thread._id, aiMsg.content, aiMsg.role, thread.model, async () => {
-          lastStatus = ''
           await tick(); // Ensures the DOM updates with the new message
           scrollToBottom()
+          lastStatus = ''
         })
+
       })
 
       // console.log(data, messagesContainer, messagesContainer?.scrollTop, messagesContainer?.scrollHeight)
