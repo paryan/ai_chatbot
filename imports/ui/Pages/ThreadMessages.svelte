@@ -8,6 +8,8 @@
   import M from 'moment'
   // import {marked} from 'marked';
 
+  let inputTokens = 0, lastStatus = 'asd'
+
   import { Marked } from "marked";
   import { markedHighlight } from "marked-highlight";
   import hljs from 'highlight.js';
@@ -38,8 +40,6 @@
     let markDown = content
     let mapping
     _.range(3).map(x => markDown = markDown.replace(new RegExp('<h' + (x+1) + '>', 'ig'), '<h' + (x+3) + '>').replace(new RegExp('</h' + (x+1) + '>', 'ig'), '</h' + (x+3) + '>'))
-
-
 
     return markDown
   }
@@ -116,13 +116,18 @@
 
   let newMessage = () => {
     if (!newContent.trim()) return
+    lastStatus = 'Sending...'
     Meteor.call('Messages : New Message', thread._id, newContent, 'user', thread.model, thread.onlySendLatest, async (err, data) => {
       await tick(); // Ensures the DOM updates with the new message
       scrollToBottom()
       let messages = [...thread.instructions, ...data]
       newContent = ''
+      inputTokens = 0
       Meteor.call('AI: Chat Completion', thread.model, messages, async (err1, aiMsg) => {
-        if(aiMsg?.prompt_tokens) console.log(aiMsg)
+        if(!aiMsg?.content) {
+          lastStatus = 'Failed'
+          console.log(aiMsg)
+        }
         thread.totalInputTokens = aiMsg?.prompt_tokens ?? thread.totalInputTokens
         thread.totalOutputTokens = aiMsg?.completion_tokens ?? thread.totalOutputTokens
         thread.totalTokens = aiMsg?.total_tokens ?? thread.totalTokens
@@ -133,6 +138,7 @@
             totalTokens: aiMsg?.total_tokens ?? thread.totalTokens,
             updatedAt: Date.now() } })
         await Meteor.call('Messages : New Message', thread._id, aiMsg.content, aiMsg.role, thread.model, async () => {
+          lastStatus = ''
           await tick(); // Ensures the DOM updates with the new message
           scrollToBottom()
         })
@@ -182,12 +188,11 @@
   .messagesContainer {
     padding-bottom: 0;
     margin-bottom: 0;
-    grid-template-rows: auto 4.5em;
+    grid-template-rows: calc(100vh - 4em - 8em) 8em;
     height: calc(100vh - 4em);
     margin-top: 0px;
     /*overflow: hidden;*/
   }
-
   .threadMeta {
     background: var(--bs-threadMeta);
     /*margin: 0 10px;*/
@@ -204,25 +209,16 @@
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
   }
-
   .threadMeta summary {
     display: block;
     padding-left: 12px;
   }
-
   .instructionsContainer {
     height: calc(100vh - 15em);
     max-height: 50%;
     overflow-y: scroll;
     margin-top: 5px;
   }
-
-  /*@media screen and (max-width: 2056px) {*/
-  /*  .instructionsContainer {*/
-  /*    height: calc(100vw - 57.5vw);*/
-  /*  }*/
-  /*}*/
-
   .newThreadControls {
     border-top: 1px solid rgba(128, 128, 128, 0.46);
     margin: 5px 10px 0 10px;
@@ -255,12 +251,13 @@
   }
   .chatMessages {
     overflow-y: scroll;
-    height: calc(100vh - 9em);
+    height: calc(100vh - 11.5em);
     padding: 40px 10px 10px 10px;
     display: flex;
     flex-direction: column;
     /*max-width: 800px; !* or your preferred max width *!*/
     margin: auto;
+    border-bottom: 1px solid #d0cfcf;
   }
   .chatMessages .chatMessage {
     /*max-width: 50%;*/
@@ -288,16 +285,12 @@
     width: fit-content;
     background: #0a8560;
   }
-
-
   .chat-container {
     display: flex;
     flex-direction: column;
     /*max-width: 800px; !* or your preferred max width *!*/
     margin: auto;
   }
-
-  /* Base styles for each chat bubble */
   .chat-bubble {
     padding: 10px;
     margin: 5px;
@@ -305,12 +298,10 @@
     max-width: 70%;
     min-width: 20%;
   }
-
   .sender {
     align-self: flex-end;
     /*background-color: var(--bs-responder-bubble); !* Blue for sender *!*/
   }
-
   .responder {
     align-self: flex-start;
   }
@@ -319,18 +310,14 @@
     padding: 5px 10px;
     border-radius: 10px;
   }
-
   .sender .message-content {
     background-color: var(--bs-sender-bubble);
     padding: 5px 10px;
     border-radius: 10px;
   }
-
   .isHidden {
     cursor: pointer;
   }
-
-  /* Message info (role, time, delete) */
   .message-info {
     font-size: 0.8rem; /* Smaller text for message info */
     /*display: flex;*/
@@ -342,19 +329,16 @@
     grid-template-columns: auto 8em;
     margin: 0 10px 0 5px;
   }
-
   .responder .message-info {
     color: var(--bs-responder-info-text);
     border-bottom: 1px solid var(--bs-responder-info-text);
     user-select: none;
   }
-
   .sender .message-info {
     color: var(--bs-sender-info-text);
     border-bottom: 1px solid var(--bs-sender-info-text);
     user-select: none;
   }
-
   .message-info-icons, .message-info-icons a {
     text-align: right;
     color: var(--bs-responder-info-text) !important;
@@ -366,25 +350,25 @@
     cursor: pointer;
     display: inline-block;
   }
-
-  /* Message content styling */
   .message-content {
     font-size: 0.9rem; /* Regular text size for message content */
     margin-top: 10px;
     color: var(--bs-responder-content-text);
   }
-
-  /* Optional: styling for hover state on delete button */
   .delete-btn:hover {
     opacity: 0.8;
   }
-
   .messagesContainer .instructions {
     border: 0;
   }
-
   .userMessage0 {
     grid-template-rows: 1em 1.5em;
+  }
+
+  .secondLabel {
+    margin-left: 10px;
+    border-left: 1px solid #bfbdbd;
+    padding-left: 10px;
   }
 </style>
 
@@ -478,15 +462,24 @@
                 <span>{#if msg.showMarkDown}<pre style="white-space:break-spaces">{msg.content}</pre>{:else} {#await marked.parse(msg.content)}{:then parsedContent}{@html parseMarkdown(parsedContent)}{:catch error}{error}{/await}{/if}</span>
               {/if}
             </div>
-              </div>
+          </div>
 <!--                {scrollToBottom() ?? ''}-->
         {/each}
       </div>
     </div>
     {#if !showBookmarked}
       <div class="input">
-        <textarea class="font-monospace newMessage" placeholder="Enter text" bind:value={newContent} on:keydown={checkForSubmit}></textarea>
+        <textarea
+          class="font-monospace newMessage"
+          placeholder="Enter prompt"
+          bind:value={newContent}
+          on:keydown={checkForSubmit}
+          on:keyup={_.debounce(() => Meteor.call('AI: Calculate Tokens', newContent, thread.model, (err, data) => {
+            inputTokens = data ?? 0
+          }), 1000, {trailing:true, leading:false, maxWait: 1000})}
+        ></textarea>
         <button class="btn btn-link text-decoration-none text-muted" style="padding: 0" href="#" on:click|preventDefault={newMessage}><SvgIcons iconName="square-rounded-arrow-up" /></button>
+        <span class="status"><span class="label">Input Tokens</span> {inputTokens}{#if lastStatus}<span class="label secondLabel">Status</span> {lastStatus}{/if}</span>
       </div>
       {:else}
       <div class="text-center text-muted">Disable bookmark filter for sending new messages.</div>
