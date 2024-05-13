@@ -107,14 +107,13 @@
         <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/new" on:click={() => selectedThread=''}>New Thread</a> </li>
         <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/textDiff">Text-Diff</a> </li>
         <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/converter">Convert To MD</a> </li>
-        <!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/threads">Threads</a> </li>-->
-        <!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/portfolio">Search</a> </li>-->
       </ul>
       <ul class="d-flex navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll chatGptUsage" style="--bs-scroll-height: 100px;">
         <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/usage">Usage <SvgIcons iconName="arrow-up-right" /> </a>
         <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/docs/api-reference">API Ref <SvgIcons iconName="arrow-up-right" /> </a>
+      </ul>
+      <ul class="d-flex navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll chatGptUsage" style="--bs-scroll-height: 100px;">
         <a class="nav-link" target="_blank" rel="noreferrer" href="https://undetectable.ai">Undetectable <SvgIcons iconName="arrow-up-right" /> </a>
-
       </ul>
       <ul class="d-flex navbar-nav me-auto my-0 my-lg-0 navbar-nav-scroll otherAIs" style="--bs-scroll-height: 100px;">
         <a class="nav-link" target="_blank" rel="noreferrer" href="https://chat.openai.com/">Chat GPT <SvgIcons iconName="arrow-up-right" /> </a>
@@ -135,6 +134,7 @@
     </div>
   </div>
 </nav>
+
 <div class="chatContainer" style="overflow: hidden !important; position: fixed">
   <ThreadsList {showBookmarked} {selectedThread} />
   <div class="threadDetailsContainer">
