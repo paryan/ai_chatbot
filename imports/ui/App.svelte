@@ -81,6 +81,18 @@
     border-radius: 3px;
     font-weight: 400;
   }
+  .chatGptUsage {
+    margin-inline-end: 0 !important;
+    margin-right: 5px !important;
+    border-right: 1px solid grey;
+    padding-right: 5px;
+  }
+  .chatGptUsage a {
+    /*color: var(--nav-link-color);*/
+  }
+  .threadDetailsContainer {
+    width: calc(100vw - 18em);
+  }
 </style>
 
 <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary" style="height: 3.5em !important">
@@ -94,16 +106,23 @@
       <ul class="navbar-nav my-2 my-lg-0 navbar-nav-scroll navOptions" style="--bs-scroll-height: 100px;">
         <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/new" on:click={() => selectedThread=''}>New Thread</a> </li>
         <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/textDiff">Text-Diff</a> </li>
-        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/converter">Convert</a> </li>
+        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/converter">Convert To MD</a> </li>
         <!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/threads">Threads</a> </li>-->
         <!--        <li class="nav-item"> <a class="nav-link" exact use:active active-class="active" href="/portfolio">Search</a> </li>-->
       </ul>
-      <ul class="d-flex navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+      <ul class="d-flex navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll chatGptUsage" style="--bs-scroll-height: 100px;">
         <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/usage">Usage <SvgIcons iconName="arrow-up-right" /> </a>
         <a class="nav-link" target="_blank" rel="noreferrer" href="https://platform.openai.com/docs/api-reference">API Ref <SvgIcons iconName="arrow-up-right" /> </a>
+        <a class="nav-link" target="_blank" rel="noreferrer" href="https://undetectable.ai">Undetectable <SvgIcons iconName="arrow-up-right" /> </a>
+
+      </ul>
+      <ul class="d-flex navbar-nav me-auto my-0 my-lg-0 navbar-nav-scroll otherAIs" style="--bs-scroll-height: 100px;">
         <a class="nav-link" target="_blank" rel="noreferrer" href="https://chat.openai.com/">Chat GPT <SvgIcons iconName="arrow-up-right" /> </a>
         <a class="nav-link" target="_blank" rel="noreferrer" href="https://gemini.google.com/app">Gemini <SvgIcons iconName="arrow-up-right" /> </a>
         <a class="nav-link" target="_blank" rel="noreferrer" href="https://you.com/">You <SvgIcons iconName="arrow-up-right" /> </a>
+        <a class="nav-link" target="_blank" rel="noreferrer" href="https://www.perplexity.ai">Perplexity <SvgIcons iconName="arrow-up-right" /> </a>
+        <a class="nav-link" target="_blank" rel="noreferrer" href="https://claude.ai/">Claude <SvgIcons iconName="arrow-up-right" /> </a>
+        <a class="nav-link" target="_blank" rel="noreferrer" href="https://pi.ai/">PI <SvgIcons iconName="arrow-up-right" /> </a>
       </ul>
       <form class="d-flex" role="search">
         <a href='#' on:click|preventDefault={toggleBookmarked} class="pe-pointer" style="color:{darkMode?'white':'black'}">
