@@ -171,6 +171,11 @@
 
   $: chatMessages, scrollToBottom();
 
+  let copyHtml = async (text) => {
+    let parsed = await marked.parse(text)
+    copyText(parsed)
+  }
+
 </script>
 
 <style>
@@ -179,18 +184,25 @@
     margin-bottom: 0;
     grid-template-rows: auto 4.5em;
     height: calc(100vh - 4em);
+    margin-top: 0px;
+    /*overflow: hidden;*/
   }
 
   .threadMeta {
     background: var(--bs-threadMeta);
-    margin: 0 10px;
+    /*margin: 0 10px;*/
     padding: 5px;
     position: absolute;
     border-radius: 5px;
     border: 1px solid var(--bs-threadMetaBorder);
-    width: calc(100vw - 19.25em);
-    box-shadow: 0 2px 5px 0px var(--bs-threadMetaShadow);
+    width: calc(100vw - 18em);
+    box-shadow: 5px 2px 10px 0px var(--bs-threadMetaShadow);
     resize: vertical;
+    z-index: 1000;
+    border-radius: 0px;
+    border-width: 2px 0px 0px 0px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
   }
 
   .threadMeta summary {
@@ -375,6 +387,8 @@
     grid-template-rows: 1em 1.5em;
   }
 </style>
+
+
 {#if !thread}
   <div class="user-select-none" style="margin: 10px"> ◀ Select a Thread</div>
 {:else if isLoading}
@@ -451,7 +465,8 @@
               <span class="message-info-icons">
                 {#if msg.role !== 'user'}<a href="" class="markdown-btn" title="Show Markdown Version" on:click|preventDefault={() => msg.showMarkDown = !msg.showMarkDown}><SvgIcons iconName="{msg.showMarkDown ? 'markdown': 'markdown-off'}" /></a>{/if}
                 <a href="" class="delete-btn" title="Delete Message" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="{ msg.isHidden ? 'eye-closed' : 'eye-14' }" /></a>
-                <a href="" class="copy-btn"   title="Copy to clipboard" on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
+                <a href="" class="copy-btn"   title="Copy text to clipboard" on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
+                <a href="" class="copy-btn"   title="Copy html to clipboard" on:click|preventDefault={() => copyHtml(msg.content)}><SvgIcons iconName="copy-14" /></a>
                 <a href="" class="reuse-btn"  title="Add to Input Box" on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
                 <a href="" class="reuse-btn"  title="Bookmark" on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
               </span>
