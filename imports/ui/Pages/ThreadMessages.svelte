@@ -217,7 +217,7 @@
     padding-left: 12px;
   }
   .instructionsContainer {
-    height: calc(100vh - 15em);
+    height: calc(100vh - 18em);
     max-height: 50%;
     overflow-y: scroll;
     margin-top: 5px;
