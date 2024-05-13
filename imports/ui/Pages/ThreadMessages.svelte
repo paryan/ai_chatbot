@@ -116,12 +116,12 @@
 
   let newMessage = () => {
     if (!newContent.trim()) return
-    lastStatus = 'Processing...'
     Meteor.call('Messages : New Message', thread._id, newContent, 'user', thread.model, thread.onlySendLatest, async (err, data) => {
       await tick(); // Ensures the DOM updates with the new message
       scrollToBottom()
       let messages = [...thread.instructions, ...data]
       newContent = ''
+      lastStatus = 'Processing...'
       inputTokens = 0
       Meteor.call('AI: Chat Completion', thread.model, messages, async (err1, aiMsg) => {
 
