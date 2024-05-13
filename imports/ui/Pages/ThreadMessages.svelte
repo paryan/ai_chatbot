@@ -453,7 +453,7 @@
                 {#if msg.role !== 'user'}<a href="" class="markdown-btn" title="Show Markdown Version" on:click|preventDefault={() => msg.showMarkDown = !msg.showMarkDown}><SvgIcons iconName="{msg.showMarkDown ? 'markdown': 'markdown-off'}" /></a>{/if}
                 <a href="" class="delete-btn" title="Delete Message" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="{ msg.isHidden ? 'eye-closed' : 'eye-14' }" /></a>
                 <a href="" class="copy-btn"   title="Copy text to clipboard" on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
-                <a href="" class="copy-btn"   title="Copy html to clipboard" on:click|preventDefault={() => copyHtml(msg.content)}><SvgIcons iconName="copy-14" /></a>
+<!--                <a href="" class="copy-btn"   title="Copy html to clipboard" on:click|preventDefault={() => copyHtml(msg.content)}><SvgIcons iconName="copy-14" /></a>-->
                 <a href="" class="reuse-btn"  title="Add to Input Box" on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
                 <a href="" class="reuse-btn"  title="Bookmark" on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
               </span>
