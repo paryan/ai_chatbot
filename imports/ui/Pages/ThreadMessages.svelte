@@ -8,7 +8,7 @@
   import M from 'moment'
   // import {marked} from 'marked';
 
-  let inputTokens = 0, lastStatus = 'asd'
+  let inputTokens = 0, lastStatus = ''
 
   import { Marked } from "marked";
   import { markedHighlight } from "marked-highlight";
