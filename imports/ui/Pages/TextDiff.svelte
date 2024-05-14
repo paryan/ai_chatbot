@@ -19,7 +19,7 @@
     2: []
   }
 
-  export let models = ['gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo']
+  export let models
   let getTokens = (inputText, target) => {
     Meteor.call('AI: Token Counter', inputText, models, (err, data) => {
       tokens[target] = data
