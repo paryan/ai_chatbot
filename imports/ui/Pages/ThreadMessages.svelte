@@ -40,7 +40,7 @@
     let markDown = content
     let mapping
     _.range(3).map(x => markDown = markDown.replace(new RegExp('<h' + (x+1) + '>', 'ig'), '<h' + (x+3) + '>').replace(new RegExp('</h' + (x+1) + '>', 'ig'), '</h' + (x+3) + '>'))
-
+    markDown = markDown.replace(/<pre>/g, '<pre style="white-space: break-spaces;">')
     return markDown
   }
 
