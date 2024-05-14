@@ -482,7 +482,7 @@
           }), 1000, {trailing:true, leading:false, maxWait: 1000})}
         ></textarea>
         <button class="btn btn-link text-decoration-none text-muted" style="padding: 0" href="#" on:click|preventDefault={newMessage}><SvgIcons iconName="square-rounded-arrow-up" /></button>
-        <span class="status"><span class="label">Input Tokens</span> {inputTokens}{#if lastStatus}<span class="label secondLabel">Status</span> {lastStatus}{/if}</span>
+        <span class="status"><span class="label">Input Tokens:</span> {inputTokens}{#if lastStatus}<span class="label secondLabel">Status:</span> {lastStatus}{/if}</span>
       </div>
       {:else}
       <div class="text-center text-muted">Disable bookmark filter for sending new messages.</div>
