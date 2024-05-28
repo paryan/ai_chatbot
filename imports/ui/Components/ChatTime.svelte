@@ -3,12 +3,13 @@
   import { onMount, onDestroy } from 'svelte';
 
   export let timestamp;  // Pass the timestamp as a prop
+  export let hideAgo = true
 
   let fromNow;
   let interval;
 
   function updateFromNow() {
-    fromNow = moment(new Date(timestamp)).fromNow(true);
+    fromNow = moment(new Date(timestamp)).fromNow(hideAgo);
   }
 
   onMount(() => {
