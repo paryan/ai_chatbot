@@ -8,48 +8,78 @@
   import M from 'moment'
   // import {marked} from 'marked';
 
-  let inputTokens = 0, lastStatus = ''
-
-  import { Marked } from "marked";
-  import { markedHighlight } from "marked-highlight";
+  import markdownit from 'markdown-it'
   import hljs from 'highlight.js';
 
-  const marked = new Marked(
-    markedHighlight({
-      langPrefix: 'hljs language-',
-      highlight(code, lang, info) {
-        const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-        let value = hljs.highlight(code, { language }).value;
-        return hljs.highlight(code, { language }).value;
+  const md = markdownit({
+    html: true,
+    linkify: true,
+    typographer: true,
+    breaks: true,
+    highlight: function (str, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try {
+          return hljs.highlight(str, { language: lang }).value;
+        } catch (__) {}
       }
-    })
-  );
 
+      return ''; // use external default escaping
+    }
+  })
+
+
+  let inputTokens = 0, lastStatus = ''
 
   const route = meta();
   export let showBookmarked
-  // Optionally set marked options
-  marked.setOptions({
-    gfm: true, // GitHub Flavored Markdown
-    breaks: true, // Line breaks
-    sanitize: false, // Do NOT use sanitize in production without proper XSS mitigation
-    async: true,
-  });
-
-  const parseMarkdown = content => {
-    let markDown = content
-    let mapping
-    _.range(3).map(x => markDown = markDown.replace(new RegExp('<h' + (x+1) + '>', 'ig'), '<h' + (x+3) + '>').replace(new RegExp('</h' + (x+1) + '>', 'ig'), '</h' + (x+3) + '>'))
-    markDown = markDown.replace(/<pre>/g, '<pre style="white-space: break-spaces;">')
-    return markDown
-  }
-
-
   export let details, models
 
   import { onMount, tick } from 'svelte';
   import {copyText} from "../../api/Utils";
   import ChatTime from "../Components/ChatTime.svelte";
+  import SingleChatMessage from "../Components/SingleChatMessage.svelte";
+
+  function Export2Word(HTML, filename = ''){
+    let preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
+    let postHtml = "</body></html>";
+    let html = preHtml+HTML+postHtml;
+
+    let blob = new Blob(['\ufeff', html], {
+      type: 'application/msword'
+    });
+
+    // Specify link url
+    let url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
+
+    // Specify file name
+    filename = filename?filename+'.doc':'document.doc';
+
+    // Create download link element
+    let downloadLink = document.createElement("a");
+
+    document.body.appendChild(downloadLink);
+
+    if(navigator.msSaveOrOpenBlob ){
+      navigator.msSaveOrOpenBlob(blob, filename);
+    }else{
+      // Create a link to the file
+      downloadLink.href = url;
+
+      // Setting the file name
+      downloadLink.download = filename;
+
+      //triggering the function
+      downloadLink.click();
+    }
+
+    document.body.removeChild(downloadLink);
+  }
+
+  async function docx_download(inputText, filename='document') {
+
+    Export2Word(inputText, 'doc.doc')
+
+  }
 
   onMount(() => { document.title = 'AI - Threads'; });
 
@@ -180,11 +210,43 @@
 
   $: chatMessages, scrollToBottom();
 
-  let copyHtml = async (text) => {
-    let parsed = await marked.parse(text)
-    copyText(parsed)
+  function addCopyButtons(html, mid) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+
+    const codeBlocks = tempDiv.querySelectorAll('pre code');
+    codeBlocks.forEach((block, index) => {
+      const copyButton = document.createElement('button');
+      copyButton.innerText = 'Copy';
+      copyButton.className = 'copy-button';
+
+      const pre = block.parentElement;
+      pre.style.position = 'relative';
+      pre.appendChild(copyButton);
+      let cid = 'code_'+mid+'_'+index
+      pre.innerHTML = pre.innerHTML.replace('<code', '<code id="' + cid + '" ')
+      pre.innerHTML = pre.innerHTML.replace('<button class="copy-button">Copy</button>', '<button class="copy-button" onclick="copyCodeText(\'' + cid + '\')">Copy</button>')
+    });
+
+    return tempDiv.innerHTML;
   }
 
+  function copyRichText(mid) {
+    let content = document.getElementById(mid).innerHTML
+    content = content.replace(/<h1>/g, '<h1 style="font-size: 20px; margin: 5px 0 10px 0; padding: 0;">')
+                     .replace(/<h2>/g, '<h2 style="font-size: 16px; margin: 5px 0 10px 0; padding: 0;">')
+                     .replace(/<h3>/g, '<h3 style="font-size: 14px; margin: 5px 0 10px 0; padding: 0;">')
+
+    content = `<div style="font-family: Calibri; font-size: 12px">${content}</div>`
+    function listener(e) {
+      e.clipboardData.setData("text/html", content);
+      e.clipboardData.setData("text/plain", content);
+      e.preventDefault();
+    }
+    document.addEventListener("copy", listener);
+    document.execCommand("copy");
+    document.removeEventListener("copy", listener);
+  }
 </script>
 
 <style>
@@ -255,112 +317,15 @@
   .chatMessages {
     overflow-y: scroll;
     height: calc(100vh - 11.5em);
-    padding: 40px 10px 10px 10px;
+    padding: 70px 10px 10px 10px;
     display: flex;
     flex-direction: column;
     /*max-width: 800px; !* or your preferred max width *!*/
     margin: auto;
     border-bottom: 1px solid #d0cfcf;
   }
-  .chatMessages .chatMessage {
-    /*max-width: 50%;*/
-    /*border: 1px solid grey;*/
-  }
-  .chatMessages .chatMessage .role {
-    font-family: var(--bs-font-monospace) !important;
-    font-size: 12px;
-  }
-  .chatMessages .messageFromUser {
-    /*text-align: right;*/
-    /*position: relative;*/
-    /*left: 50%;*/
 
-  }
-  .chatMessage {
-    padding: 4px 4px 2px 4px;
-    display: block;
-    line-height: 1;
-    font-family: var(--bs-font-monospace) !important;
-    font-size: 14px;
-    border-radius: 3px;
-  }
-  .chatMessage span {
-    width: fit-content;
-    background: #0a8560;
-  }
-  .chat-container {
-    display: flex;
-    flex-direction: column;
-    /*max-width: 800px; !* or your preferred max width *!*/
-    margin: auto;
-  }
-  .chat-bubble {
-    padding: 10px;
-    margin: 5px;
-    color: #fff;
-    max-width: 70%;
-    min-width: 20%;
-  }
-  .sender {
-    align-self: flex-end;
-    /*background-color: var(--bs-responder-bubble); !* Blue for sender *!*/
-  }
-  .responder {
-    align-self: flex-start;
-  }
-  .responder .message-content {
-    background-color: var(--bs-responder-bubble);
-    padding: 5px 10px;
-    border-radius: 10px;
-  }
-  .sender .message-content {
-    background-color: var(--bs-sender-bubble);
-    padding: 5px 10px;
-    border-radius: 10px;
-  }
-  .isHidden {
-    cursor: pointer;
-  }
-  .message-info {
-    font-size: 0.8rem; /* Smaller text for message info */
-    /*display: flex;*/
-    /*justify-content: space-between; !* Spreads out the info across the bubble *!*/
-    padding-bottom: 4px; /* Space between info and message content */
-    /*margin-bottom: 4px; !* Space between info and message content *!*/
-    border-bottom: 1px solid white;
-    display: grid;
-    grid-template-columns: auto 8em;
-    margin: 0 10px 0 5px;
-  }
-  .responder .message-info {
-    color: var(--bs-responder-info-text);
-    border-bottom: 1px solid var(--bs-responder-info-text);
-    user-select: none;
-  }
-  .sender .message-info {
-    color: var(--bs-sender-info-text);
-    border-bottom: 1px solid var(--bs-sender-info-text);
-    user-select: none;
-  }
-  .message-info-icons, .message-info-icons a {
-    text-align: right;
-    color: var(--bs-responder-info-text) !important;
-  }
-  .delete-btn, .copy-btn, .reuse-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    display: inline-block;
-  }
-  .message-content {
-    font-size: 0.9rem; /* Regular text size for message content */
-    margin-top: 10px;
-    color: var(--bs-responder-content-text);
-  }
-  .delete-btn:hover {
-    opacity: 0.8;
-  }
+
   .messagesContainer .instructions {
     border: 0;
   }
@@ -373,8 +338,33 @@
     border-left: 1px solid #bfbdbd;
     padding-left: 10px;
   }
+
+
 </style>
 
+<svelte:head>
+  <script>
+    function copyCodeText (cid) {
+      const textArea = document.createElement('textarea');
+      textArea.value = document.getElementById(cid).innerText
+
+      // Avoid scrolling to bottom
+      textArea.style.top = '0'; textArea.style.left = '0'; textArea.style.position = 'fixed';
+
+      document.body.appendChild(textArea); textArea.focus(); textArea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        const msg = successful ? 'successful' : 'unsuccessful';
+        if (!successful) console.log('Fallback: Copying text command was ' + msg);
+      } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+      }
+      document.body.removeChild(textArea);
+
+    }
+  </script>
+</svelte:head>
 
 {#if !thread}
   <div class="user-select-none" style="margin: 10px"> ◀ Select a Thread</div>
@@ -440,33 +430,11 @@
       </details>
 
       <div class="chatMessages">
-        {#each chatMessages as msg}
-          <div class="chat-bubble {msg.role === 'user' ? 'sender' : 'responder'}">
-            <div class="message-info">
-              <span class="role">
-                {msg.role === 'user' ? 'You' : 'AI'}, <ChatTime timestamp={msg.updatedAt} />
-                {msg.role === 'user' ? '' : ': ' + msg.model?.replace(/-/g, ' ')?.replace(/gpt /i, 'GPT ')?.replace(/turbo/, 'Turbo')}
-                {msg.role === 'user' || msg.isHidden ? '' : ': ' + ((msg.content?.match(/\b[-?(\w+)?]+\b/gi) ?? [])?.length?.toLocaleString() ?? '0') + ' Words'}
-                {msg.role === 'user' || msg.isHidden ? '' : ': ' + (msg.content?.length?.toLocaleString() ?? '0') + ' Chars'}
-              </span>
-              <span class="message-info-icons">
-                {#if msg.role !== 'user'}<a href="" class="markdown-btn" title="Show Markdown Version" on:click|preventDefault={() => msg.showMarkDown = !msg.showMarkDown}><SvgIcons iconName="{msg.showMarkDown ? 'markdown': 'markdown-off'}" /></a>{/if}
-                <a href="" class="delete-btn" title="Delete Message" on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="{ msg.isHidden ? 'eye-closed' : 'eye-14' }" /></a>
-                <a href="" class="copy-btn"   title="Copy text to clipboard" on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
-<!--                <a href="" class="copy-btn"   title="Copy html to clipboard" on:click|preventDefault={() => copyHtml(msg.content)}><SvgIcons iconName="copy-14" /></a>-->
-                <a href="" class="reuse-btn"  title="Add to Input Box" on:click|preventDefault={() => newContent = msg.content}><SvgIcons iconName="repeat-14" /></a>
-                <a href="" class="reuse-btn"  title="Bookmark" on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
-              </span>
-            </div>
-            <div class="message-content font-monospace {msg.isHidden ? 'isHidden' : ''}"  on:click={() => { if(msg.isHidden) msg.tempShow=!msg.tempShow }}>
-              {#if msg.isHidden && !msg.tempShow}
-                <span>[Hidden]</span>
-              {:else}
-                <span>{#if msg.showMarkDown}<pre style="white-space:break-spaces">{msg.content}</pre>{:else} {#await marked.parse(msg.content)}{:then parsedContent}{@html parseMarkdown(parsedContent)}{:catch error}{error}{/await}{/if}</span>
-              {/if}
-            </div>
-          </div>
-<!--                {scrollToBottom() ?? ''}-->
+        {#each chatMessages as msg, idx}
+          <SingleChatMessage
+            {msg} {idx} {removeMessage} {copyRichText} {copyText} {Export2Word} {bookmarkMessage}
+            on:reAsk={(d) => newContent = d.detail ?? '' }
+          />
         {/each}
       </div>
     </div>
