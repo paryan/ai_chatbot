@@ -38,6 +38,12 @@
   --bs-sender-info-text: #6d707d;
   --bs-responder-content-text: #292a2f;
   --bs-selected-thread: #cecece;
+
+  --ai_chat_background-hover: rgb(239 239 239 / 51%);
+  --ai_chat_options_background: white;
+  --ai_chat_options_shadow: 0 1px 3px rgb(128 128 128 / 50%);
+  --ai_chat_options_color: #bbbbbb;
+  --ai_chat_options_color-hover: dimgray;
 }
 
 [data-bs-theme="dark"] {
@@ -71,6 +77,13 @@
   --bs-sender-info-text: #6d707d;
   --bs-responder-info-text: #8a8a8a;
   --bs-selected-thread: #222222;
+
+  --ai_chat_background-hover: rgb(54 54 54 / 51%);
+  --ai_chat_options_background: transparent;
+  --ai_chat_options_shadow: none;
+  --ai_chat_options_color: dimgray;
+  --ai_chat_options_color-hover: #bbbbbb;
+
 }
 
 
