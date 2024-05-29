@@ -25,6 +25,9 @@
   --converter-output: #f8f8f8;
 
   --bs-textarea: #edecec !important;
+  --bs-threadsContainer-background: #f8f9f9;
+  --bs-threadsContainer-selectedThread: rgb(222 222 225);
+  --bs-threadsContainer-hover: rgba(222, 222, 225, 0.5);
   --bs-threadMeta: rgba(238, 238, 238) !important;
   --bs-threadMetaOpen: rgba(238, 238, 238) !important;
   --bs-threadMetaBorder: #ddd;
@@ -65,6 +68,9 @@
   --converter-output: #353434;
 
   --bs-textarea: rgb(18, 18, 18) !important;
+  --bs-threadsContainer-background: rgb(40 39 39);
+  --bs-threadsContainer-selectedThread: rgb(84 84 86);
+  --bs-threadsContainer-hover: rgba(84, 84, 84, 0.5);
   --bs-threadMeta: rgba(49, 49, 49) !important;
   --bs-threadMetaOpen: rgba(49, 49, 49) !important;
   --bs-threadMetaBorder: #494949;
@@ -466,4 +472,8 @@ code.hljs {
   .hljs-tag {
     /* purposely ignored */
   }
+}
+
+.no-scroll {
+  overflow: hidden;
 }
