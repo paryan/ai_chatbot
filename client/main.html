@@ -9,7 +9,8 @@
   <link rel="icon" href="/favicon.svg">
 <!--  <script src="/tabler/tabler.min.js"></script>-->
 <!--  <link rel="stylesheet" href="/tabler/tabler.css">-->
-  <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,500,600,700|Rubik:300,400,500" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,500,600,700|Rubik:300,400,500,600,700|Roboto:300,400,500,600,700" rel="stylesheet">
+
   <link href="/bootstrap@5.3.3.min.css" rel="stylesheet">
   <script src="/bootstrap@5.3.3.js"></script>
 <!--  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">-->
@@ -17,6 +18,18 @@
 </head>
 
 <body style="overflow: hidden !important;">
+<script>
+  // Prevent rubberband effect on iOS
+  document.body.addEventListener('touchmove', function(event) {
+    event.preventDefault();
+  }, { passive: false });
+
+  // If you want to prevent scrolling only for a specific element
+  const noScrollElement = document.querySelector('.no-scroll');
+  noScrollElement.addEventListener('touchmove', function(event) {
+    event.preventDefault();
+  }, { passive: false });
+</script>
 <div id="app"></div>
 </body>
 
