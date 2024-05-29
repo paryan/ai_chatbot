@@ -52,7 +52,10 @@
     grid-template-columns: 18em auto;
     overflow: hidden;
   }
-
+  .navbar {
+    background: var(--bs-threadsContainer-background);
+    /*border-bottom: 1px solid var(--bs-threads-border);*/
+  }
   .navbar-brand {
     font-weight: 500;
     letter-spacing: 0.05em;
@@ -100,8 +103,8 @@
   }
 </style>
 
-<nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary" style="height: 3.5em !important">
-  <div class="container-fluid" style="flex-direction: row">
+<nav class="navbar navbar-expand-lg bg-body-tertiary no-scroll" style="height: 3.5em !important; position: fixed; width: 100%; z-index: 1000">
+  <div class="container-fluid no-scroll" style="flex-direction: row" >
     <a class="navbar-brand" href="/" style="color: rgb(255 76 0)">A.I.</a>
     <span class="navbar-toggler" style=""
           type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
@@ -140,7 +143,7 @@
   </div>
 </nav>
 
-<div class="chatContainer" style="overflow: hidden !important; position: fixed">
+<div class="chatContainer" style="overflow: hidden !important; position: fixed; top: 3.5em" >
   <ThreadsList {showBookmarked} {selectedThread} />
   <div class="threadDetailsContainer">
     <Route path="/" redirect="/new"/>
