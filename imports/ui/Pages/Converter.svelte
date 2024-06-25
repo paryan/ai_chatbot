@@ -215,6 +215,6 @@ pre:focus-visible {
   {:else}
   <div class="renderBox">{@html inputText}</div>
   {/if}
-  <div class="buttonRow"><DropZone placeholderText="Drop .docx files here or click to upload." bind:files={selectedFiles} on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}})} accept=".docx" /></div>
+  <div class="buttonRow"><DropZone placeholderText="Drop .docx files here or click to select files." bind:files={selectedFiles} on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}})} accept=".docx" /></div>
 
 </div>
