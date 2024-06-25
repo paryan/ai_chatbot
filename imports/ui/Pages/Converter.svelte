@@ -209,12 +209,12 @@ pre:focus-visible {
     <div class="copyButton docDownload" on:click|preventDefault={() => Export2Word(md.render(markdown))}><SvgIcons iconName="file-type-doc-14" /></div>
     <div class="copyButton" on:click={() => copyText(markdown)}><SvgIcons iconName="copy-14" /></div>
   {/if}
-  <textarea name="" id="" cols="30" rows="10" bind:value={inputText} on:keyup={debounced2MD} placeholder="Input text here..."></textarea>
+  <textarea name="" id="" cols="30" rows="10" bind:value={inputText} on:keyup={debounced2MD} placeholder="Input html here..."></textarea>
   {#if !isRendered}
-  <textarea class="markdownBox" on:keyup={debounced2HTML} bind:value={markdown}></textarea>
+  <textarea class="markdownBox" on:keyup={debounced2HTML} bind:value={markdown} placeholder="Input markdown here..."></textarea>
   {:else}
   <div class="renderBox">{@html inputText}</div>
   {/if}
-  <div class="buttonRow"><DropZone bind:files={selectedFiles} on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}})} accept=".docx" /></div>
+  <div class="buttonRow"><DropZone placeholderText="Drop .docx files here or click to upload." bind:files={selectedFiles} on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}})} accept=".docx" /></div>
 
 </div>
