@@ -1,6 +1,7 @@
 <script>
   let dragging = false;
   export let files = [], accept = ''
+  export let placeholderText = 'Drop files here or click to upload.'
   let fileInput
   import { createEventDispatcher } from 'svelte';
   const dispatch = createEventDispatcher();
@@ -67,5 +68,5 @@
      on:click={() => fileInput.click()}
 >
   <input type="file" class="fileUploader" accept="{accept}" bind:this={fileInput} on:change={handleClick}>
-  Drop files here or click to upload.
+  {@html placeholderText}
 </div>
