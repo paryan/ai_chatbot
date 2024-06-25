@@ -1,7 +1,7 @@
 <script>
   let dragging = false;
   export let files = [], accept = ''
-  export let placeholderText = 'Drop files here or click to upload.'
+  export let placeholderText = 'Drop files here or click to select files.'
   let fileInput
   import { createEventDispatcher } from 'svelte';
   const dispatch = createEventDispatcher();
@@ -40,7 +40,7 @@
 <style>
   .dropzone {
     padding: 5px;
-    border: 2px dashed var(--dropzone-border);
+    border: 1px dashed var(--dropzone-border);
     background-color: var(--dropzone-background);
     text-align: center;
     transition: background-color 0.3s;
