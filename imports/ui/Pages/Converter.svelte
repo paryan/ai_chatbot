@@ -2,8 +2,9 @@
   import DropZone from "../Components/DropZone.svelte";
   import _ from "lodash"
 
-  let inputText = ''
-  let markdown = ''
+  let inputText = 'test'
+  let markdown = 'test'
+  let isRendered = false
   let selectInput = 'upload'
   import pretty from 'pretty'
   import mammoth from "mammoth"
@@ -16,7 +17,62 @@
   import SvgIcons from "../Components/SvgIcons.svelte";
   import {onMount} from "svelte";
 
+  import markdownit from 'markdown-it'
+  import hljs from 'highlight.js';
+  const md = markdownit({
+    html: true,
+    linkify: true,
+    typographer: true,
+    breaks: true,
+    highlight: function (str, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try {
+          return hljs.highlight(str, { language: lang }).value;
+        } catch (__) {}
+      }
+
+      return ''; // use external default escaping
+    }
+  })
+
+
   onMount(() => { document.title = 'AI - Convert HTML to Markdown'; });
+
+  function Export2Word(HTML, filename = ''){
+    let preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
+    let postHtml = "</body></html>";
+    let html = preHtml+HTML+postHtml;
+
+    let blob = new Blob(['\ufeff', html], {
+      type: 'application/msword'
+    });
+
+    // Specify link url
+    let url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
+
+    // Specify file name
+    filename = filename?filename+'.doc':'document.doc';
+
+    // Create download link element
+    let downloadLink = document.createElement("a");
+
+    document.body.appendChild(downloadLink);
+
+    if(navigator.msSaveOrOpenBlob ){
+      navigator.msSaveOrOpenBlob(blob, filename);
+    }else{
+      // Create a link to the file
+      downloadLink.href = url;
+
+      // Setting the file name
+      downloadLink.download = filename;
+
+      //triggering the function
+      downloadLink.click();
+    }
+
+    document.body.removeChild(downloadLink);
+  }
 
   function parseWordDocxFile(inputElement) {
     let files = inputElement?.target?.files || [];
@@ -41,16 +97,13 @@
     reader.readAsArrayBuffer(file);
   }
 
-  let convert = () => {
+  let convertToMarkDown = () => {
     inputText = pretty(inputText)
     markdown = turndownService.turndown(inputText)
-
-    // Meteor.call('convertToMarkdown', inputText, (err, data) => {
-    //   markdown = data
-    // })
   }
-  let debounced = _.debounce(convert, 200, {trailing:true, leading:false, maxWait: 300})
-
+  let convertToHTML = () => inputText = pretty(md.render(markdown))
+  let debounced2MD = _.debounce(convertToMarkDown, 200, {trailing:true, leading:false, maxWait: 300})
+  let debounced2HTML = _.debounce(convertToHTML, 200, {trailing:true, leading:false, maxWait: 300})
 
   $m:{
     // console.log(selectedFiles)
@@ -66,6 +119,7 @@
   padding: 10px;
   gap: 10px;
   width: calc(100vw - 18em);
+  position: relative;
 }
 .convertContainer textarea {
   border: 1px solid grey;
@@ -99,8 +153,8 @@
 }
 .copyButton {
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: 20px;
+  top: 15px;
   color: #0a8560;
   /*color: white;*/
   cursor: pointer;
@@ -110,20 +164,57 @@
   font-size: 12px;
   letter-spacing: 1px;
   border-radius: 3px;
+  z-index: 100;
 }
 .copyButton:hover {
   background: #0a8560;
   color: white;
 }
+.docDownload {
+  color: #0a5285;
+  right: 45px;
+}
+.docDownload:hover {
+  background: #0a5285;
+  color: white;
+}
+.renderHtml {
+  color: #a23f0b;
+  right: 70px;
+}
+.renderHtml:hover {
+  background: #a23f0b;
+  color: white;
+}
 pre:focus-visible {
   outline: none;
+}
+.markdownBox {
+  position: relative;
+}
+.renderBox {
+  overflow-y: scroll;
+  background: #fffbfb;
+  border: 2px solid #c8c8c899;
+  border-radius: 3px;
+  padding: 10px;
 }
 </style>
 
 <div class="convertContainer">
-
-  <textarea name="" id="" cols="30" rows="10" bind:value={inputText} on:keyup={debounced} placeholder="Input text here..."></textarea>
-  <pre contenteditable="true"><div class="copyButton" on:click={() => copyText(markdown)}><SvgIcons iconName="copy-14" /></div>{markdown}</pre>
+  {#if markdown}
+    <div class="copyButton renderHtml {isRendered ? 'text-white' : ''}" style="background: {isRendered ? '#a23f0b' : ''}" on:click|preventDefault={() => {
+      isRendered=!isRendered
+    }}><SvgIcons iconName="html-14" /></div>
+    <div class="copyButton docDownload" on:click|preventDefault={() => Export2Word(md.render(markdown))}><SvgIcons iconName="file-type-doc-14" /></div>
+    <div class="copyButton" on:click={() => copyText(markdown)}><SvgIcons iconName="copy-14" /></div>
+  {/if}
+  <textarea name="" id="" cols="30" rows="10" bind:value={inputText} on:keyup={debounced2MD} placeholder="Input text here..."></textarea>
+  {#if !isRendered}
+  <textarea class="markdownBox" on:keyup={debounced2HTML} bind:value={markdown}></textarea>
+  {:else}
+  <div class="renderBox">{@html inputText}</div>
+  {/if}
   <div class="buttonRow"><DropZone bind:files={selectedFiles} on:uploadedFiles={(event) => parseWordDocxFile({target: {files: event.detail}})} accept=".docx" /></div>
 
 </div>
