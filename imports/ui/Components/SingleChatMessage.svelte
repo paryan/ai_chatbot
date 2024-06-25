@@ -198,7 +198,7 @@
         <a href="" class="hide-btn"   data-flow="top" data-tooltip="Hide Message"   on:click|preventDefault={() => removeMessage(msg)}><SvgIcons iconName="{ msg.isHidden ? 'eye-closed' : 'eye-14' }" /></a>
         <a href="" class="copy-rich"  data-flow="top" data-tooltip="Copy Rich Text" on:click|preventDefault={() => copyRichText('messageId-'+ idx)}><SvgIcons iconName="blockquote-14" /></a>
         <a href="" class="copy-btn"   data-flow="top" data-tooltip="Copy Raw Text"  on:click|preventDefault={() => copyText(msg.content)}><SvgIcons iconName="copy-14" /></a>
-        {#if msg.role !== 'user'}<a href="" class="dnld-btn"   data-flow="top" data-tooltip="Download .Doc"  on:click|preventDefault={() => Export2Word(md.render(msg.content))}><SvgIcons iconName="file-type-doc-14" /></a>{/if}
+        <a href="" class="dnld-btn"   data-flow="top" data-tooltip="Download .Doc"  on:click|preventDefault={() => Export2Word(md.render(msg.content))}><SvgIcons iconName="file-type-doc-14" /></a>
         <a href="" class="reuse-btn"  data-flow="top" data-tooltip="Ask Again"      on:click|preventDefault={() => reAsk(msg.content)}><SvgIcons iconName="repeat-14" /></a>
         <a href="" class="reuse-btn"  data-flow="left" data-tooltip="Bookmark"       on:click|preventDefault={() => bookmarkMessage(msg)}><SvgIcons iconName="{msg.isBookmarked ? 'bookmark-filled' : 'bookmark'}" /></a>
 
