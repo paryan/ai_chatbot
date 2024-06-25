@@ -2,8 +2,8 @@
   import DropZone from "../Components/DropZone.svelte";
   import _ from "lodash"
 
-  let inputText = 'test'
-  let markdown = 'test'
+  let inputText = ''
+  let markdown = ''
   let isRendered = false
   let selectInput = 'upload'
   import pretty from 'pretty'
